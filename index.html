@@ -96,6 +96,15 @@ body {
 .song-card .badge { display:inline-block; font-size:.65em; background:var(--accent); color:#fff; padding:2px 8px; border-radius:10px; margin-bottom:6px; }
 
 .quick-actions { display:flex; gap:12px; margin-top:8px; }
+
+.sound-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
+.sound-btn {
+  background:var(--lane-bg); border:1px solid rgba(128,128,128,0.2);
+  border-radius:12px; padding:12px 8px; cursor:pointer; text-align:center;
+  font-size:0.85em; font-weight:600;
+}
+.sound-btn:active { transform:scale(0.96); }
+.sound-btn.on { background:var(--accent); color:#fff; border-color:var(--accent); }
 .btn {
   flex:1; padding:14px 20px; border-radius:12px; border:none; font-size:.95em; font-weight:600; cursor:pointer;
 }
@@ -210,6 +219,9 @@ body {
       <button class="btn btn-ghost" id="btn-editor">🎼 谱面编辑器</button>
     </div>
     
+    <div class="section-title">打击音效</div>
+    <div class="sound-grid" id="sound-grid"></div>
+    
     <div class="share-box">
       <input id="share-url" placeholder="选曲后显示分享链接..." readonly>
       <button id="btn-copy">复制</button>
@@ -283,6 +295,7 @@ const API_BASE = '';
 let TOKEN = localStorage.getItem('wy_token') || '';
 let USER = null;
 let THEME = localStorage.getItem('wy_theme') || 'dark';
+let SOUND = localStorage.getItem('wy_sound') || 'piano';
 let CURRENT = null;
 
 // ══════════════════ SONGS ═══════════════════
@@ -314,6 +327,136 @@ async function api(path, opts={}) {
   const res = await fetch(url, { ...opts, headers });
   const data = await res.json().catch(() => ({}));
   return { ok: res.ok, status: res.status, data };
+}
+
+// ══════════════════ SOUND ENGINE ═══════════════════
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+const SOUND_PRESETS = {
+  piano: { name: '🎹 钢琴', play: (ctx, t, lane) => {
+    const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    const freq = freqs[lane] || 523.25;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.0, t);
+    gain.gain.linearRampToValueAtTime(0.4, t + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.5);
+  }},
+  marimba: { name: '🎵 马林巴', play: (ctx, t, lane) => {
+    const freqs = [440, 554.37, 659.25, 880];
+    const freq = freqs[lane] || 440;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.9, t + 0.3);
+    gain.gain.setValueAtTime(0.0, t);
+    gain.gain.linearRampToValueAtTime(0.5, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.6);
+  }},
+  electric: { name: '⚡ 电子', play: (ctx, t, lane) => {
+    const freqs = [392, 493.88, 587.33, 783.99];
+    const freq = freqs[lane] || 392;
+    const osc = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc2.type = 'sawtooth';
+    osc.frequency.setValueAtTime(freq, t);
+    osc2.frequency.setValueAtTime(freq * 1.01, t);
+    gain.gain.setValueAtTime(0.0, t);
+    gain.gain.linearRampToValueAtTime(0.15, t + 0.002);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc2.start(t);
+    osc.stop(t + 0.3);
+    osc2.stop(t + 0.3);
+  }},
+  chime: { name: '🔔 风铃', play: (ctx, t, lane) => {
+    const freqs = [880, 1108.73, 1318.51, 1760];
+    const freq = freqs[lane] || 880;
+    const osc = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc2.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    osc2.frequency.setValueAtTime(freq * 2, t);
+    gain.gain.setValueAtTime(0.0, t);
+    gain.gain.linearRampToValueAtTime(0.3, t + 0.001);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+    osc.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(t);
+    osc2.start(t);
+    osc.stop(t + 1);
+    osc2.stop(t + 1);
+  }},
+  bass: { name: '🎸 贝斯', play: (ctx, t, lane) => {
+    const freqs = [130.81, 164.81, 196.00, 261.63]; // C3 E3 G3 C4
+    const freq = freqs[lane] || 130.81;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0.0, t);
+    gain.gain.linearRampToValueAtTime(0.6, t + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.7);
+  }}
+};
+
+function playHit(lane) {
+  const preset = SOUND_PRESETS[SOUND] || SOUND_PRESETS.piano;
+  const ctx = getAudio();
+  preset.play(ctx, ctx.currentTime, lane);
+}
+
+function playMiss() {
+  const ctx = getAudio();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(150, ctx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.2);
+  gain.gain.setValueAtTime(0.2, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(ctx.currentTime);
+  osc.stop(ctx.currentTime + 0.3);
+}
+
+function playHoldStart(lane) {
+  const ctx = getAudio();
+  const preset = SOUND_PRESETS[SOUND] || SOUND_PRESETS.piano;
+  preset.play(ctx, ctx.currentTime, lane);
+}
+
+function playHoldEnd(lane) {
+  const ctx = getAudio();
+  const preset = SOUND_PRESETS[SOUND] || SOUND_PRESETS.piano;
+  preset.play(ctx, ctx.currentTime, lane);
 }
 
 // ══════════════════ UI HELPERS ═══════════════════
@@ -348,6 +491,25 @@ function updateShare() {
 }
 
 // ══════════════════ MENU ═══════════════════
+function renderSoundGrid() {
+  const grid = document.getElementById('sound-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  Object.entries(SOUND_PRESETS).forEach(([key, preset]) => {
+    const btn = document.createElement('div');
+    btn.className = 'sound-btn' + (key === SOUND ? ' on' : '');
+    btn.textContent = preset.name;
+    btn.onclick = () => {
+      SOUND = key;
+      localStorage.setItem('wy_sound', key);
+      renderSoundGrid();
+      // preview
+      playHit(0);
+    };
+    grid.appendChild(btn);
+  });
+}
+
 function renderMenu() {
   const localContainer = document.getElementById('local-songs');
   localContainer.innerHTML = '';
@@ -486,6 +648,29 @@ function draw() {
     gctx.fillStyle = type === 1 ? tileHold : tile;
     gctx.fillRect(x, y - h, w, h);
     
+    // For hold tiles, add block-like texture: stripes + end cap
+    if (type === 1) {
+      // Diagonal stripes pattern
+      gctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      gctx.lineWidth = 2;
+      for (let yy = y - h + 12; yy < y; yy += 14) {
+        gctx.beginPath();
+        gctx.moveTo(x + 4, yy);
+        gctx.lineTo(x + w - 4, yy - 10);
+        gctx.stroke();
+      }
+      // End cap (brighter)
+      gctx.fillStyle = tile;
+      gctx.fillRect(x, y - 16, w, 16);
+      // Top edge highlight
+      gctx.fillStyle = 'rgba(255,255,255,0.12)';
+      gctx.fillRect(x, y - h, w, 3);
+    } else {
+      // Tap tile: top highlight for block feel
+      gctx.fillStyle = 'rgba(255,255,255,0.1)';
+      gctx.fillRect(x, y - h, w, 3);
+    }
+    
     // Highlight if holding
     if (rt.state === 'holding') {
       gctx.strokeStyle = hitLine;
@@ -523,6 +708,7 @@ function loop() {
         rt.state = 'missed';
         G.combo = 0;
         G.lives--;
+        playMiss();
         updateHUD();
         if (G.lives <= 0) {
           G.state = 'gameover';
@@ -644,12 +830,14 @@ function onPress(e) {
       const points = 100 + G.combo * 10;
       G.score += points;
       
+      playHit(pitch);
       const noteY_pos = noteY(note, performance.now() / 1000 - G.t0);
       spawnParticles(pitch * G.laneW + (G.laneW - G.tileH) / 2, noteY_pos);
     } else {
       // Hold note - start holding
       rt.state = 'holding';
       rt.holdStart = performance.now() / 1000 - G.t0;
+      playHoldStart(pitch);
     }
     
     updateHUD();
@@ -678,10 +866,12 @@ function onRelease(e) {
         G.combo++;
         G.maxCombo = Math.max(G.maxCombo, G.combo);
         G.score += 200 + G.combo * 20;
+        playHoldEnd(pitch);
       } else {
         rt.state = 'missed';
         G.combo = 0;
         G.lives--;
+        playMiss();
       }
       rt.pointerId = null;
     });
@@ -945,6 +1135,7 @@ async function init() {
     else { TOKEN = ''; localStorage.removeItem('wy_token'); }
   }
   renderAcct();
+  renderSoundGrid();
   renderMenu();
 }
 
