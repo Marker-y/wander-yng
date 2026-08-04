@@ -567,6 +567,8 @@ function resizeGame(){
   G.W = $gc.clientWidth; G.H = $gc.clientHeight;
 }
 function initGame(song){
+  // ensure dimensions are set first
+  resizeGame();
   G.song = song;
   G.bpm = song.bpm;
   G.stepDur = 60 / G.bpm / 4;
@@ -583,10 +585,11 @@ function initGame(song){
   G.shake = 0; G.shown = false;
   G.stars = Array.from({length:50},()=>({ x:Math.random()*G.W, y:Math.random()*G.H, r:Math.random()*1.6+.4, s:Math.random()*.3+.1, a:Math.random()*.5+.2 }));
   G.theme = THEMES[THEME];
-  resizeGame();
 }
 function startGame(song){
   showView('view-game');
+  // force resize to ensure canvas has correct dimensions
+  resizeGame();
   // wait a frame for layout
   requestAnimationFrame(()=>{ initGame(song); requestAnimationFrame(loop); });
 }
