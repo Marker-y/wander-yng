@@ -1,0 +1,14 @@
+{
+  "name": "wander-yng",
+  "version": "1.0.0",
+  "description": "A rhythm game like Piano Tiles",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": ["rhythm", "game", "piano-tiles", "music"],
+  "license": "MIT"
+}
