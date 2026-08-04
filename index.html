@@ -7,343 +7,285 @@
 <style>
 /* ═══════════ THEMES ═══════════ */
 :root, [data-theme="dark"] {
-  --bg1:#0b0b1e; --bg2:#1a0a2e;
-  --surface: rgba(255,255,255,0.06);
-  --surface-2: rgba(255,255,255,0.1);
-  --border: rgba(255,255,255,0.12);
-  --text:#f2f2f7; --muted:#8a8aa8;
-  --accent:#ff4d6d; --accent2:#4cc9f0; --gold:#ffd700;
-  --lane:['#ff4d6d','#4cc9f0','#b5179e','#f9c74f'];
-  --lane0:#ff4d6d; --lane1:#4cc9f0; --lane2:#b5179e; --lane3:#f9c74f;
-  --lanebg0:#170912; --lanebg1:#001520; --lanebg2:#150a1a; --lanebg3:#1a1408;
-  --hit:rgba(255,77,109,0.45);
-  --shadow: rgba(0,0,0,0.5);
+  --bg:#0d0d0d;
+  --lane-bg:#1a1a1a;
+  --lane-alt:#141414;
+  --tile:#000;
+  --tile-hold:#1a1a1a;
+  --hit-line:#ff3366;
+  --text:#fff;
+  --muted:#888;
+  --accent:#ff3366;
+  --gold:#ffd700;
 }
 [data-theme="light"] {
-  --bg1:#eef1f8; --bg2:#dfe6f5;
-  --surface: rgba(0,0,0,0.04);
-  --surface-2: rgba(0,0,0,0.07);
-  --border: rgba(0,0,0,0.12);
-  --text:#1a1a2e; --muted:#6b6b85;
-  --accent:#e63946; --accent2:#0077b6; --gold:#e8a700;
-  --lane0:#e63946; --lane1:#0077b6; --lane2:#9d4edd; --lane3:#ff9e00;
-  --lanebg0:#fce8ee; --lanebg1:#e3f2fb; --lanebg2:#f3e8fb; --lanebg3:#fff4e0;
-  --hit:rgba(230,57,70,0.22);
-  --shadow: rgba(0,0,0,0.12);
+  --bg:#f5f5f5;
+  --lane-bg:#fff;
+  --lane-alt:#f0f0f0;
+  --tile:#222;
+  --tile-hold:#333;
+  --hit-line:#e63946;
+  --text:#222;
+  --muted:#666;
+  --accent:#e63946;
+  --gold:#e8a700;
 }
 [data-theme="pinkblue"] {
-  --bg1:#ffe6f2; --bg2:#e3f1ff;
-  --surface: rgba(255,255,255,0.55);
-  --surface-2: rgba(255,255,255,0.75);
-  --border: rgba(255,140,180,0.3);
-  --text:#5a3a4d; --muted:#a87a92;
-  --accent:#ff6b9d; --accent2:#5ab0e0; --gold:#ffb3c6;
-  --lane0:#ff8fb1; --lane1:#8ecae6; --lane2:#ffb3c6; --lane3:#a2d2ff;
-  --lanebg0:#ffe8f0; --lanebg1:#e8f4fb; --lanebg2:#dfeefc; --lanebg3:#eef6ff;
-  --hit:rgba(255,107,157,0.25);
-  --shadow: rgba(255,140,180,0.25);
+  --bg:#ffe6f0;
+  --lane-bg:#fff0f5;
+  --lane-alt:#ffe6f0;
+  --tile:#ff6b9d;
+  --tile-hold:#ff8fb1;
+  --hit-line:#ff6b9d;
+  --text:#5a3a4d;
+  --muted:#a87a92;
+  --accent:#ff6b9d;
+  --gold:#ffb3c6;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html,body { height:100%; }
+html,body { height:100%; overflow:hidden; }
 body {
-  font-family:'Segoe UI','Helvetica Neue',system-ui,sans-serif;
-  background:linear-gradient(160deg,var(--bg1),var(--bg2));
-  color:var(--text);
-  overflow:hidden;
-  user-select:none; -webkit-user-select:none;
-  touch-action:none;
-  transition:background .3s,color .3s;
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg); color:var(--text);
 }
-button { font-family:inherit; cursor:pointer; }
-/* rotate prompt removed: game forces landscape via CSS */
 
-/* ── top bar ── */
+/* rotate prompt removed: game is landscape-first */
+#app { position:fixed; inset:0; display:flex; flex-direction:column; }
+
+/* ── TOP BAR ── */
 #topbar {
-  position:fixed; top:0; left:0; right:0; height:52px; z-index:50;
-  display:flex; align-items:center; gap:12px; padding:0 14px;
-  background:var(--surface); backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--border);
+  height:56px; display:flex; align-items:center; gap:12px;
+  padding:0 16px; background:var(--bg);
+  border-bottom:1px solid rgba(128,128,128,0.15);
+  flex-shrink:0;
 }
-.logo { width:34px; height:34px; flex:none; }
-.logo text { display:none; }
-.brand { font-weight:800; font-size:1.15em; letter-spacing:.5px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
-.spacer { flex:1; }
-.theme-switch { display:flex; gap:4px; background:var(--surface); border:1px solid var(--border); border-radius:20px; padding:3px; }
-.theme-switch button { border:none; background:transparent; color:var(--muted); border-radius:16px; padding:5px 9px; font-size:14px; transition:.15s; }
-.theme-switch button.active { background:var(--accent); color:#fff; }
-.acct-chip { display:flex; align-items:center; gap:7px; background:var(--surface-2); border:1px solid var(--border);
-  border-radius:20px; padding:5px 12px; color:var(--text); font-size:.85em; font-weight:600; }
-.acct-chip .av { width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
-.acct-chip.guest { color:var(--muted); }
+#logo { display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.1em; }
+#logo .ic { width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg,#ff6b9d,#4ecdc4); display:grid; place-items:center; font-size:1.2em; }
+#theme-toggle { margin-left:auto; display:flex; background:var(--lane-alt); border-radius:20px; padding:3px; }
+#theme-toggle button { background:transparent; border:none; width:32px; height:32px; border-radius:16px; font-size:1em; cursor:pointer; opacity:0.5; }
+#theme-toggle button.active { background:var(--lane-bg); opacity:1; box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+#acct { position:relative; }
+#acct-btn { background:var(--lane-alt); border:1px solid rgba(128,128,128,0.2); color:var(--text); padding:7px 14px; border-radius:20px; font-size:.85em; cursor:pointer; }
+#acct-menu { position:absolute; top:44px; right:0; background:var(--lane-bg); border:1px solid rgba(128,128,128,0.2); border-radius:12px; padding:8px; min-width:140px; display:none; box-shadow:0 8px 32px rgba(0,0,0,0.3); }
+#acct-menu.show { display:block; }
+#acct-menu button { display:block; width:100%; text-align:left; background:transparent; border:none; color:var(--text); padding:10px 12px; border-radius:8px; font-size:.9em; cursor:pointer; }
+#acct-menu button:hover { background:var(--lane-alt); }
 
-/* ── views ── */
-#app { position:fixed; inset:0; }
-.view { position:absolute; inset:0; display:none; flex-direction:column; }
+/* ── VIEWS ── */
+.view { display:none; flex:1; flex-direction:column; overflow:hidden; }
 .view.active { display:flex; }
-.scroll { overflow-y:auto; -webkit-overflow-scrolling:touch; }
 
 /* ── MENU ── */
-#view-menu { padding-top:52px; }
-.menu-hero { text-align:center; padding:18px 16px 8px; }
-.menu-hero h2 { font-size:1.5em; font-weight:800; }
-.menu-hero p { color:var(--muted); font-size:.85em; margin-top:4px; }
-.section-label { font-size:.72em; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); padding:14px 18px 6px; }
-.song-grid { display:flex; gap:12px; overflow-x:auto; padding:6px 16px 14px; scroll-snap-type:x mandatory; }
+#view-menu { padding:20px; gap:16px; overflow-y:auto; }
+.menu-header { text-align:center; margin-bottom:8px; }
+.menu-header h1 { font-size:1.6em; margin-bottom:6px; }
+.menu-header p { color:var(--muted); font-size:.9em; }
+
+.section-title { font-size:.75em; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin:8px 0 4px; }
+
+.song-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; }
 .song-card {
-  flex:none; width:150px; scroll-snap-align:start;
-  background:var(--surface); border:1px solid var(--border); border-radius:16px;
-  padding:14px; cursor:pointer; transition:transform .1s,border-color .15s; position:relative;
+  background:var(--lane-bg); border:1px solid rgba(128,128,128,0.15);
+  border-radius:16px; padding:16px; cursor:pointer; transition:transform .1s;
 }
-.song-card:active { transform:scale(.96); }
-.song-card:hover { border-color:var(--accent); }
-.song-card .badge { position:absolute; top:10px; right:10px; font-size:.6em; padding:2px 7px; border-radius:10px; background:var(--surface-2); color:var(--muted); }
-.song-card .badge.pub { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; }
-.song-card .badge.loc { background:var(--gold); color:#000; }
-.song-card .ic { font-size:30px; margin-bottom:8px; }
-.song-card .nm { font-weight:700; font-size:.95em; line-height:1.2; }
-.song-card .mt { font-size:.7em; color:var(--muted); margin-top:5px; }
-.menu-actions { display:flex; gap:10px; padding:6px 16px 10px; flex-wrap:wrap; }
-.btn { border:none; border-radius:14px; padding:13px 22px; font-weight:700; font-size:.95em; transition:transform .1s,box-shadow .15s; letter-spacing:.3px; }
-.btn:active { transform:scale(.96); }
-.btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; box-shadow:0 4px 18px var(--shadow); }
-.btn-ghost { background:var(--surface); color:var(--text); border:1px solid var(--border); }
-.btn-gold { background:var(--gold); color:#000; }
-.btn-accent { background:var(--accent); color:#fff; }
-.share-box { margin:6px 16px 16px; display:flex; gap:8px; }
-.share-box input { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; color:var(--text); font-size:.8em; }
-.share-box button { background:var(--surface-2); border:1px solid var(--border); border-radius:10px; color:var(--text); padding:0 16px; font-size:.8em; }
+.song-card:active { transform:scale(0.98); }
+.song-card .icon { font-size:2em; margin-bottom:8px; }
+.song-card .name { font-weight:700; font-size:.95em; margin-bottom:4px; }
+.song-card .meta { font-size:.75em; color:var(--muted); }
+.song-card .badge { display:inline-block; font-size:.65em; background:var(--accent); color:#fff; padding:2px 8px; border-radius:10px; margin-bottom:6px; }
+
+.quick-actions { display:flex; gap:12px; margin-top:8px; }
+.btn {
+  flex:1; padding:14px 20px; border-radius:12px; border:none; font-size:.95em; font-weight:600; cursor:pointer;
+}
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-ghost { background:var(--lane-alt); color:var(--text); border:1px solid rgba(128,128,128,0.2); }
+
+.share-box { display:flex; gap:8px; margin-top:8px; }
+.share-box input { flex:1; background:var(--lane-bg); border:1px solid rgba(128,128,128,0.2); border-radius:10px; padding:12px; color:var(--text); font-size:.9em; }
+.share-box button { background:var(--lane-alt); border:1px solid rgba(128,128,128,0.2); border-radius:10px; color:var(--text); padding:0 16px; font-size:.85em; cursor:pointer; }
 
 /* ── GAME ── */
-#view-game { background:#000; }
+#view-game { position:relative; background:var(--bg); }
 #game-canvas { display:block; width:100%; height:100%; }
-#hud { position:absolute; top:52px; left:0; right:0; display:flex; justify-content:space-between; padding:8px 18px; pointer-events:none; }
+#countdown {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:5em; font-weight:800; color:var(--accent); pointer-events:none;
+}
+#hud {
+  position:absolute; top:12px; left:0; right:0; display:flex; justify-content:space-between;
+  padding:0 20px; pointer-events:none;
+}
 .hud-box { text-align:center; }
-.hud-box .l { font-size:.62em; letter-spacing:1.5px; color:var(--muted); text-transform:uppercase; }
-.hud-box .v { font-size:1.5em; font-weight:800; font-variant-numeric:tabular-nums; }
+.hud-box .l { font-size:.6em; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+.hud-box .v { font-size:1.4em; font-weight:800; }
 #hud-score .v { color:var(--gold); }
-#hud-combo .v { color:var(--accent); transition:transform .08s; }
-#hud-combo .v.pop { transform:scale(1.35); }
-#hud-lives .v { color:var(--accent); }
-#pause-btn { position:absolute; top:60px; right:16px; background:rgba(0,0,0,.45); border:1px solid var(--border); color:#fff; border-radius:10px; padding:7px 14px; font-size:.85em; z-index:5; }
-#float-layer { position:absolute; inset:0; pointer-events:none; z-index:4; }
+#hud-combo .v { color:var(--accent); }
+#pause-btn {
+  position:absolute; top:12px; right:20px; background:rgba(0,0,0,0.5);
+  border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:8px;
+  padding:8px 16px; font-size:.85em; cursor:pointer; z-index:10;
+}
 
 /* ── RESULT ── */
-#overlay { position:fixed; inset:0; z-index:200; display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px;
-  background:rgba(0,0,0,.78); backdrop-filter:blur(10px); padding:24px; }
+#overlay {
+  position:fixed; inset:0; z-index:200; display:none; flex-direction:column;
+  align-items:center; justify-content:center; gap:16px;
+  background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); padding:24px;
+}
 #overlay.show { display:flex; }
 #ov-title { font-size:2em; font-weight:800; }
-#ov-sub { color:var(--muted); font-size:.95em; }
-.stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:min(320px,86vw); }
-.stat { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; text-align:center; }
-.stat .sl { font-size:.65em; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
-.stat .sv { font-size:1.7em; font-weight:800; color:var(--gold); margin-top:3px; font-variant-numeric:tabular-nums; }
-.stat .sv.g { font-size:2.3em; }
-.g-S{color:#ffd700}.g-A{color:#ff4d6d}.g-B{color:#ff9e00}.g-C{color:#9aa}
-.ov-actions { display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+#ov-sub { color:var(--muted); }
+.stats { display:grid; grid-template-columns:1fr 1fr; gap:12px; width:min(300px,90vw); }
+.stat { background:var(--lane-bg); border-radius:16px; padding:16px; text-align:center; }
+.stat .sl { font-size:.65em; color:var(--muted); text-transform:uppercase; }
+.stat .sv { font-size:1.6em; font-weight:800; color:var(--gold); margin-top:4px; }
+.ov-actions { display:flex; gap:12px; margin-top:8px; }
 
 /* ── EDITOR ── */
-#view-editor { padding-top:52px; }
-.ed-bar { display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--border); flex-wrap:wrap; }
-.ed-bar input { background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:8px 11px; color:var(--text); font-size:.85em; }
-.ed-bar .nm { flex:1; min-width:120px; }
-.ed-toolbar { display:flex; gap:6px; align-items:center; padding:7px 12px; background:var(--surface); border-bottom:1px solid var(--border); flex-wrap:wrap; }
-.ed-toolbar .seg { display:flex; border:1px solid var(--border); border-radius:9px; overflow:hidden; }
-.ed-toolbar .seg button { background:var(--surface-2); border:none; color:var(--text); padding:7px 12px; font-size:.82em; }
-.ed-toolbar .seg button.on { background:var(--accent); color:#fff; }
-.ed-toolbar .stepper { display:flex; align-items:center; gap:4px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:2px; }
-.ed-toolbar .stepper button { background:transparent; border:none; color:var(--text); width:26px; height:26px; font-size:1.1em; border-radius:7px; }
-.ed-toolbar .stepper .val { min-width:26px; text-align:center; font-size:.85em; font-weight:700; }
-.ed-roll-wrap { flex:1; overflow:auto; background:#080818; position:relative; }
+#view-editor { padding-top:56px; }
+.ed-bar { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--lane-bg); border-bottom:1px solid rgba(128,128,128,0.15); flex-wrap:wrap; }
+.ed-bar input { background:var(--lane-alt); border:1px solid rgba(128,128,128,0.2); border-radius:8px; padding:8px 12px; color:var(--text); font-size:.85em; }
+.ed-toolbar { display:flex; gap:8px; align-items:center; padding:8px 12px; background:var(--lane-bg); border-bottom:1px solid rgba(128,128,128,0.15); flex-wrap:wrap; }
+.ed-toolbar button { background:var(--lane-alt); border:1px solid rgba(128,128,128,0.2); border-radius:8px; color:var(--text); padding:8px 14px; font-size:.8em; cursor:pointer; }
+.ed-toolbar button.on { background:var(--accent); color:#fff; }
+.ed-roll-wrap { flex:1; overflow:auto; background:var(--bg); position:relative; }
 #roll-canvas { display:block; touch-action:none; }
-.ed-preview { height:110px; border-top:1px solid var(--border); background:#06060f; display:flex; flex-direction:column; }
-.ed-preview h4 { font-size:.65em; color:var(--muted); padding:6px 12px 2px; letter-spacing:1px; text-transform:uppercase; }
-#preview-canvas { flex:1; touch-action:none; }
-.ed-info { margin-left:auto; font-size:.75em; color:var(--muted); }
-.ed-hint { font-size:.7em; color:var(--muted); padding:4px 12px; }
+.ed-preview { height:100px; border-top:1px solid rgba(128,128,128,0.15); background:var(--lane-alt); }
+#preview-canvas { display:block; width:100%; height:100%; }
 
-/* ── ADMIN PANEL ── */
-#view-admin { padding-top:52px; }
-.req-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; margin:8px 16px; }
-.req-card .ru { font-weight:700; }
-.req-card .rm { font-size:.8em; color:var(--muted); margin:6px 0; }
-.req-card .ra { display:flex; gap:8px; }
-.empty-note { text-align:center; color:var(--muted); padding:40px 20px; }
+/* ── MODAL ── */
+#modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:300; }
+#modal-overlay.show { display:flex; }
+.modal { background:var(--lane-bg); border-radius:16px; padding:24px; width:min(320px,90vw); }
+.modal h3 { margin-bottom:16px; }
+.modal input { width:100%; background:var(--lane-alt); border:1px solid rgba(128,128,128,0.2); border-radius:10px; padding:12px; margin-bottom:12px; color:var(--text); font-size:1em; }
+.modal .actions { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+.modal button { padding:10px 20px; border-radius:10px; border:none; font-size:.9em; cursor:pointer; }
+.modal .primary { background:var(--accent); color:#fff; }
+.modal .secondary { background:var(--lane-alt); color:var(--text); }
 
-/* ── AUTH MODAL ── */
-#auth { position:fixed; inset:0; z-index:300; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.7); backdrop-filter:blur(6px); padding:20px; }
-#auth.show { display:flex; }
-.auth-card { width:min(360px,92vw); background:linear-gradient(160deg,var(--bg1),var(--bg2)); border:1px solid var(--border); border-radius:20px; padding:24px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
-.auth-card h3 { font-size:1.3em; margin-bottom:4px; }
-.auth-card .sub { color:var(--muted); font-size:.82em; margin-bottom:18px; }
-.auth-card label { font-size:.75em; color:var(--muted); display:block; margin:12px 0 5px; letter-spacing:.5px; }
-.auth-card input { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:11px; padding:12px 14px; color:var(--text); font-size:.95em; }
-.auth-tabs { display:flex; gap:8px; margin-bottom:6px; }
-.auth-tabs button { flex:1; background:var(--surface); border:1px solid var(--border); color:var(--muted); border-radius:11px; padding:9px; font-weight:700; font-size:.9em; }
-.auth-tabs button.on { background:var(--accent); color:#fff; border-color:var(--accent); }
-.auth-card .btn { width:100%; margin-top:18px; }
-.auth-msg { font-size:.8em; margin-top:10px; min-height:1em; }
-.auth-msg.err { color:var(--accent); }
-.auth-msg.ok { color:var(--accent2); }
-
-/* ── toast ── */
-#toast { position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--accent); color:#fff; padding:11px 22px; border-radius:24px; font-size:.88em; opacity:0; transition:.3s; pointer-events:none; z-index:999; box-shadow:0 6px 24px var(--shadow); }
-#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* menu list (account dropdown) */
-#acct-menu { position:absolute; top:50px; right:10px; z-index:120; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:6px; min-width:170px; display:none; backdrop-filter:blur(12px); box-shadow:0 10px 30px var(--shadow); }
-#acct-menu.show { display:block; }
-#acct-menu button { display:block; width:100%; text-align:left; background:transparent; border:none; color:var(--text); padding:10px 12px; border-radius:9px; font-size:.88em; }
-#acct-menu button:hover { background:var(--surface); }
-#acct-menu .sep { height:1px; background:var(--border); margin:4px 0; }
+/* ── TOAST ── */
+#toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); color:#fff; padding:12px 24px; border-radius:24px; font-size:.9em; opacity:0; transition:opacity .3s; pointer-events:none; z-index:400; }
+#toast.show { opacity:1; }
 </style>
 </head>
 <body>
-
-<!-- rotate prompt removed: game is landscape-first -->
-<!-- account dropdown -->
-<div id="acct-menu"></div>
-
 <div id="app">
   <!-- TOP BAR -->
   <div id="topbar">
-    <svg class="logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/>
-      </linearGradient></defs>
-      <rect x="5" y="5" width="54" height="54" rx="16" fill="url(#lg)"/>
-      <g fill="#fff"><ellipse cx="27" cy="43" rx="7" ry="5.5"/><rect x="32.5" y="19" width="4" height="24" rx="2"/>
-        <path d="M32.5 19 q11 2 11 11 q-5 -6 -11 -4 z"/></g>
-      <g fill="#fff" opacity=".92"><rect x="45" y="35" width="3.4" height="11" rx="1.7"/><rect x="50" y="29" width="3.4" height="17" rx="1.7"/><rect x="55" y="39" width="3.4" height="7" rx="1.7"/></g>
-    </svg>
-    <span class="brand">wander-yng</span>
-    <div class="spacer"></div>
-    <div class="theme-switch" id="theme-switch">
-      <button data-theme="dark" title="深色">🌙</button>
-      <button data-theme="light" title="亮色">☀️</button>
-      <button data-theme="pinkblue" title="粉蓝">🌸</button>
+    <div id="logo"><div class="ic">🎵</div>wander-yng</div>
+    <div id="theme-toggle">
+      <button data-theme="dark" title="Dark">🌙</button>
+      <button data-theme="light" title="Light">☀️</button>
+      <button data-theme="pinkblue" title="Pink/Blue">🌸</button>
     </div>
-    <button class="acct-chip guest" id="acct-chip"><span class="av">?</span><span id="acct-name">游客</span></button>
+    <div id="acct">
+      <button id="acct-btn">👤 游客</button>
+      <div id="acct-menu">
+        <button id="btn-login">登录</button>
+        <button id="btn-reg">注册</button>
+        <button id="btn-logout" style="display:none">退出</button>
+      </div>
+    </div>
   </div>
 
   <!-- MENU -->
-  <div class="view scroll" id="view-menu">
-    <div class="menu-hero"><h2>🎵 选一首开始</h2><p>点按黑块 · 长按条纹块 · 奏出节拍</p></div>
-    <div class="section-label">服务器谱面（所有人可玩）</div>
-    <div class="song-grid" id="pub-grid"></div>
-    <div class="section-label">本地 / 内置</div>
-    <div class="song-grid" id="loc-grid"></div>
-    <div class="menu-actions">
-      <button class="btn btn-primary" id="btn-quick">⚡ 快速开始 · 小星星</button>
-      <button class="btn btn-ghost" id="btn-editor">🎛️ 谱面编辑器</button>
+  <div class="view active" id="view-menu">
+    <div class="menu-header">
+      <h1>🎹 选一首开始</h1>
+      <p>点击黑块 · 长按长条 · 奏出节拍</p>
     </div>
+    
+    <div class="section-title">服务器谱面</div>
+    <div class="song-grid" id="pub-songs"></div>
+    <p id="no-pub" style="color:var(--muted);font-size:.85em;padding:12px;display:none">还没有发布的谱面</p>
+    
+    <div class="section-title">本地 / 内置</div>
+    <div class="song-grid" id="local-songs"></div>
+    
+    <div class="quick-actions">
+      <button class="btn btn-primary" id="btn-quick">⚡ 快速开始</button>
+      <button class="btn btn-ghost" id="btn-editor">🎼 谱面编辑器</button>
+    </div>
+    
     <div class="share-box">
-      <input type="text" id="share-url" readonly placeholder="选曲后显示分享链接…" />
-      <button id="btn-copy-url">📋 复制</button>
+      <input id="share-url" placeholder="选曲后显示分享链接..." readonly>
+      <button id="btn-copy">复制</button>
     </div>
-    <div style="height:20px"></div>
   </div>
 
   <!-- GAME -->
   <div class="view" id="view-game">
     <canvas id="game-canvas"></canvas>
-    <div id="float-layer"></div>
+    <div id="countdown"></div>
     <div id="hud">
       <div class="hud-box" id="hud-score"><div class="l">Score</div><div class="v">0</div></div>
       <div class="hud-box" id="hud-combo"><div class="l">Combo</div><div class="v">0</div></div>
       <div class="hud-box" id="hud-lives"><div class="l">Lives</div><div class="v">❤️❤️❤️</div></div>
     </div>
-    <button id="pause-btn">⏸ 暂停</button>
+    <button id="pause-btn">⏸</button>
   </div>
 
   <!-- EDITOR -->
   <div class="view" id="view-editor">
     <div class="ed-bar">
-      <input class="nm" id="ed-name" placeholder="曲名" />
-      <input id="ed-bpm" placeholder="BPM" value="90" style="width:64px" />
-      <button class="btn btn-gold" id="ed-save" style="padding:9px 14px;font-size:.85em">💾 保存</button>
-      <button class="btn btn-primary" id="ed-play" style="padding:9px 14px;font-size:.85em">▶ 试玩</button>
-      <button class="btn btn-ghost" id="ed-share" style="padding:9px 14px;font-size:.85em">🔗 分享</button>
-      <button class="btn btn-accent" id="ed-publish" style="padding:9px 14px;font-size:.85em;display:none">🚀 发布</button>
-      <button class="btn btn-ghost" id="ed-back" style="padding:9px 14px;font-size:.85em">← 返回</button>
+      <input id="ed-name" class="nm" placeholder="曲名" value="未命名">
+      <input id="ed-bpm" type="number" placeholder="BPM" value="120" style="width:70px">
+      <button class="btn btn-primary" id="ed-test" style="padding:8px 16px;font-size:.85em">▶ 测试</button>
+      <button class="btn btn-ghost" id="ed-back" style="padding:8px 16px;font-size:.85em">返回</button>
     </div>
     <div class="ed-toolbar">
-      <div class="seg" id="ed-type">
-        <button data-type="0" class="on">👆 点按</button>
-        <button data-type="1">✋ 长按</button>
-      </div>
-      <div class="stepper"><button id="ed-dur-minus">−</button><span class="val" id="ed-dur-val">1</span><button id="ed-dur-plus">+</button></div>
-      <span style="font-size:.75em;color:var(--muted)">长按时长(步)</span>
-      <button class="btn btn-accent" id="ed-del" style="padding:8px 14px;font-size:.82em">✕ 删除选中</button>
-      <span class="ed-info" id="ed-info">0 音符</span>
+      <button id="tool-tap" class="on">点击</button>
+      <button id="tool-hold">长按</button>
+      <span style="margin-left:auto;color:var(--muted);font-size:.8em">点击网格添加音符，再次点击删除</span>
     </div>
-    <div class="ed-hint">点击空位添加音符 · 点击已有音符选中并可改时长/删除 · 长按音符为条纹长块</div>
-    <div class="ed-roll-wrap" id="roll-wrap"><canvas id="roll-canvas"></canvas></div>
-    <div class="ed-preview"><h4>谱面预览</h4><canvas id="preview-canvas"></canvas></div>
-  </div>
-
-  <!-- ADMIN PANEL -->
-  <div class="view scroll" id="view-admin">
-    <div class="section-label">管理员申请审核</div>
-    <div id="admin-list"></div>
-    <div style="height:20px"></div>
+    <div class="ed-roll-wrap">
+      <canvas id="roll-canvas"></canvas>
+    </div>
+    <div class="ed-preview">
+      <canvas id="preview-canvas"></canvas>
+    </div>
   </div>
 
   <!-- RESULT -->
   <div id="overlay">
-    <div id="ov-title">结果</div>
+    <div id="ov-title"></div>
     <div id="ov-sub"></div>
     <div class="stats" id="ov-stats"></div>
-    <div class="ov-actions" id="ov-actions"></div>
-  </div>
-
-  <!-- AUTH MODAL -->
-  <div id="auth">
-    <div class="auth-card">
-      <div class="auth-tabs">
-        <button id="tab-login" class="on">登录</button>
-        <button id="tab-reg">注册</button>
-      </div>
-      <h3 id="auth-title">欢迎回来</h3>
-      <div class="sub" id="auth-sub">登录以保存进度并提交管理员申请</div>
-      <label>用户名</label>
-      <input id="auth-user" placeholder="3-20 位字母/数字/下划线" />
-      <label>密码</label>
-      <input id="auth-pass" type="password" placeholder="至少 4 位" />
-      <div class="auth-msg" id="auth-msg"></div>
-      <button class="btn btn-primary" id="auth-submit">登录</button>
+    <div class="ov-actions">
+      <button class="btn btn-primary" id="ov-retry">重试</button>
+      <button class="btn btn-ghost" id="ov-menu">返回菜单</button>
     </div>
   </div>
+
+  <!-- MODAL -->
+  <div id="modal-overlay">
+    <div class="modal" id="login-modal">
+      <h3>登录</h3>
+      <input id="login-user" placeholder="用户名">
+      <input id="login-pass" type="password" placeholder="密码">
+      <div class="actions">
+        <button class="secondary" id="login-cancel">取消</button>
+        <button class="primary" id="login-ok">登录</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast"></div>
 </div>
 
-<div id="toast"></div>
-
 <script>
-'use strict';
-// ══════════════════ STATE ═══════════════════
-const API = '';
-let TOKEN = localStorage.getItem('mb_token') || '';
+// ══════════════════ CONFIG ═══════════════════
+const API_BASE = '';
+let TOKEN = localStorage.getItem('wy_token') || '';
 let USER = null;
-let THEME = localStorage.getItem('mb_theme') || 'dark';
-let CURRENT = null; // current song for play/share
+let THEME = localStorage.getItem('wy_theme') || 'dark';
+let CURRENT = null;
 
-// ══════════════════ THEMES (canvas) ═══════════════════
-const THEMES = {
-  dark:    { bg1:'#0b0b1e', bg2:'#1a0a2e', lanes:['#ff4d6d','#4cc9f0','#b5179e','#f9c74f'], laneBg:['#170912','#001520','#150a1a','#1a1408'], hit:'rgba(255,77,109,0.45)', star:'#ffffff', text:'#f2f2f7' },
-  light:   { bg1:'#eef1f8', bg2:'#dfe6f5', lanes:['#e63946','#0077b6','#9d4edd','#ff9e00'], laneBg:['#fce8ee','#e3f2fb','#f3e8fb','#fff4e0'], hit:'rgba(230,57,70,0.22)', star:'#9ab', text:'#1a1a2e' },
-  pinkblue:{ bg1:'#ffe6f2', bg2:'#e3f1ff', lanes:['#ff8fb1','#8ecae6','#ffb3c6','#a2d2ff'], laneBg:['#ffe8f0','#e8f4fb','#dfeefc','#eef6ff'], hit:'rgba(255,107,157,0.25)', star:'#c98', text:'#5a3a4d' }
-};
-function applyTheme(t){
-  THEME = t; document.documentElement.setAttribute('data-theme', t);
-  localStorage.setItem('mb_theme', t);
-  document.querySelectorAll('#theme-switch button').forEach(b=>b.classList.toggle('active', b.dataset.theme===t));
-}
-document.querySelectorAll('#theme-switch button').forEach(b=> b.onclick=()=>applyTheme(b.dataset.theme));
-applyTheme(THEME);
-
-// ══════════════════ BUILTIN: Twinkle (tap + hold mix) ═══════════════════
+// ══════════════════ SONGS ═══════════════════
 const TWINKLE_RAW = [
   [0,0,1],[1,0,1],[2,0,1],[3,0,1],[4,0,1],[5,0,1],[6,0,1],[7,0,1],
   [8,1,1],[9,1,1],[10,1,1],[11,1,1],[12,2,1],[13,2,1],[14,2,1],[15,2,1],
@@ -359,630 +301,653 @@ const TWINKLE_RAW = [
   [88,0,2],[90,0,1],[91,0,1],[92,0,1],[93,0,1],[94,0,1],[95,0,1]
 ];
 const TWINKLE = {
-  name:'⭐ 小星星 Twinkle', bpm:90,
-  notes: TWINKLE_RAW.map(([s,p,d])=>[s,p,d, d>1?1:0]),
-  builtin:true
+  name: '小星星', bpm: 90,
+  notes: TWINKLE_RAW.map(([s,p,d]) => [s,p,d, d>1?1:0]),
+  builtin: true
 };
 
-// ══════════════════ API CLIENT ═══════════════════
-async function api(path, opts={}){
-  const headers = {'Content-Type':'application/json'};
+// ══════════════════ API ═══════════════════
+async function api(path, opts={}) {
+  const url = API_BASE + path;
+  const headers = { 'Content-Type': 'application/json' };
   if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
-  try {
-    const r = await fetch(API + path, { ...opts, headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
-    const data = await r.json().catch(()=>({}));
-    if (r.status === 401 && USER) { USER=null; TOKEN=''; localStorage.removeItem('mb_token'); renderAcct(); }
-    return { ok:r.ok, status:r.status, data };
-  } catch(e){ return { ok:false, status:0, data:{error:'网络错误，服务器可能未启动'} }; }
+  const res = await fetch(url, { ...opts, headers });
+  const data = await res.json().catch(() => ({}));
+  return { ok: res.ok, status: res.status, data };
 }
 
-// ══════════════════ SHARE LINK ═══════════════════
-function encodeChart(song){
-  const d = { n:song.name, b:song.bpm, notes:song.notes, a:song.author||'' };
-  return btoa(unescape(encodeURIComponent(JSON.stringify(d))));
-}
-function decodeChart(h){
-  try { return decodeURIComponent(escape(atob(h))); } catch { return null; }
-}
-function shareURL(song){ return location.origin + location.pathname + '#' + encodeChart(song); }
-
-// ══════════════════ ACCOUNT UI ═══════════════════
-const $acctChip = document.getElementById('acct-chip');
-const $acctName = document.getElementById('acct-name');
-const $acctMenu = document.getElementById('acct-menu');
-function initials(n){ return (n||'?').slice(0,1).toUpperCase(); }
-function renderAcct(){
-  if (USER){
-    $acctName.textContent = USER.username + (USER.isAdmin?' 👑':'');
-    $acctChip.classList.remove('guest');
-    $acctChip.querySelector('.av').textContent = initials(USER.username);
-  } else {
-    $acctName.textContent = '游客';
-    $acctChip.classList.add('guest');
-    $acctChip.querySelector('.av').textContent = '?';
-  }
-}
-$acctChip.onclick = ()=>{
-  if (USER){
-    $acctMenu.innerHTML = '';
-    if (!USER.isAdmin){
-      const pending = JSON.parse(localStorage.getItem('mb_pending')||'false');
-      const b = document.createElement('button');
-      b.textContent = pending ? '⏳ 管理员申请审核中' : '📝 提交管理员申请';
-      b.onclick = ()=>{ $acctMenu.classList.remove('show'); openAdminRequest(); };
-      if (pending) b.style.opacity=.6;
-      $acctMenu.appendChild(b);
-    } else {
-      const b = document.createElement('button');
-      b.textContent = '🛡️ 管理面板';
-      b.onclick = ()=>{ $acctMenu.classList.remove('show'); showView('view-admin'); loadAdmin(); };
-      $acctMenu.appendChild(b);
-    }
-    const b2 = document.createElement('button');
-    b2.textContent = '📤 本地谱面';
-    b2.onclick = ()=>{ $acctMenu.classList.remove('show'); showEditor(null); };
-    $acctMenu.appendChild(b2);
-    $acctMenu.appendChild(Object.assign(document.createElement('div'),{className:'sep'}));
-    const lo = document.createElement('button');
-    lo.textContent = '🚪 退出登录';
-    lo.onclick = ()=>{ $acctMenu.classList.remove('show'); TOKEN=''; USER=null; localStorage.removeItem('mb_token'); localStorage.removeItem('mb_pending'); renderAcct(); showToast('已退出'); };
-    $acctMenu.appendChild(lo);
-    $acctMenu.classList.toggle('show');
-  } else {
-    openAuth('login');
-  }
-};
-document.addEventListener('click', e=>{ if(!$acctMenu.contains(e.target) && e.target!==$acctChip) $acctMenu.classList.remove('show'); });
-
-// ── auth modal ──
-let AUTH_MODE = 'login';
-const $auth = document.getElementById('auth');
-function openAuth(mode){
-  AUTH_MODE = mode;
-  document.getElementById('tab-login').classList.toggle('on', mode==='login');
-  document.getElementById('tab-reg').classList.toggle('on', mode==='reg');
-  document.getElementById('auth-title').textContent = mode==='login'?'欢迎回来':'创建账号';
-  document.getElementById('auth-sub').textContent = mode==='login'?'登录以保存进度并提交管理员申请':'注册后即可游玩并提交管理员申请';
-  document.getElementById('auth-submit').textContent = mode==='login'?'登录':'注册';
-  document.getElementById('auth-msg').textContent = '';
-  document.getElementById('auth-user').value=''; document.getElementById('auth-pass').value='';
-  $auth.classList.add('show');
-}
-function closeAuth(){ $auth.classList.remove('show'); }
-document.getElementById('tab-login').onclick=()=>openAuth('login');
-document.getElementById('tab-reg').onclick=()=>openAuth('reg');
-document.getElementById('auth-submit').onclick = async ()=>{
-  const u = document.getElementById('auth-user').value.trim();
-  const p = document.getElementById('auth-pass').value;
-  const msg = document.getElementById('auth-msg');
-  msg.className='auth-msg';
-  const path = AUTH_MODE==='login'?'/api/login':'/api/register';
-  const res = await api(path, { method:'POST', body:{ username:u, password:p } });
-  if (res.ok){
-    TOKEN = res.data.token; USER = res.data.user;
-    localStorage.setItem('mb_token', TOKEN);
-    msg.className='auth-msg ok'; msg.textContent='成功！';
-    renderAcct(); setTimeout(closeAuth, 500);
-  } else {
-    msg.className='auth-msg err'; msg.textContent = res.data.error || '失败';
-  }
-};
-$auth.addEventListener('click', e=>{ if(e.target===$auth) closeAuth(); });
-
-// ── admin request ──
-async function openAdminRequest(){
-  if (!USER){ openAuth('login'); return; }
-  const msg = prompt('想成为管理员的原因（可选）：') || '';
-  const res = await api('/api/admin-request', { method:'POST', body:{ message:msg } });
-  if (res.ok){ localStorage.setItem('mb_pending','true'); showToast('申请已提交，等待管理员审核'); }
-  else showToast(res.data.error || '提交失败');
+// ══════════════════ UI HELPERS ═══════════════════
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('acct-menu').classList.remove('show');
 }
 
-// ── admin panel ──
-async function loadAdmin(){
-  const res = await api('/api/admin-requests');
-  const list = document.getElementById('admin-list');
-  if (!res.ok){ list.innerHTML = `<div class="empty-note">${res.data.error||'加载失败'}</div>`; return; }
-  const reqs = res.data.requests || [];
-  if (reqs.length===0){ list.innerHTML = `<div class="empty-note">暂无申请</div>`; return; }
-  list.innerHTML='';
-  reqs.forEach(r=>{
-    const c = document.createElement('div'); c.className='req-card';
-    c.innerHTML = `<div class="ru">@${r.username}</div><div class="rm">${r.message||'（无备注）'}</div>`;
-    const ra = document.createElement('div'); ra.className='ra';
-    if (r.status==='pending'){
-      const ap = document.createElement('button'); ap.className='btn btn-primary'; ap.style.padding='8px 16px'; ap.textContent='✅ 通过';
-      ap.onclick = async ()=>{ const x=await api(`/api/admin-requests/${r.id}/approve`,{method:'POST'}); if(x.ok){ showToast('已通过'); loadAdmin(); } };
-      const rj = document.createElement('button'); rj.className='btn btn-ghost'; rj.style.padding='8px 16px'; rj.textContent='❌ 拒绝';
-      rj.onclick = async ()=>{ const x=await api(`/api/admin-requests/${r.id}/reject`,{method:'POST'}); if(x.ok){ showToast('已拒绝'); loadAdmin(); } };
-      ra.appendChild(ap); ra.appendChild(rj);
-    } else {
-      ra.innerHTML = `<span style="color:var(--muted);font-size:.85em">状态：${r.status==='approved'?'已通过':'已拒绝'}</span>`;
-    }
-    c.appendChild(ra); list.appendChild(c);
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function setTheme(t) {
+  THEME = t;
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('wy_theme', t);
+  document.querySelectorAll('#theme-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.theme === t);
   });
 }
 
-// ══════════════════ MENU RENDER ═══════════════════
-function showView(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  $acctMenu.classList.remove('show');
+function updateShare() {
+  if (!CURRENT) return;
+  const url = location.origin + location.pathname + '#' + btoa(JSON.stringify({
+    name: CURRENT.name, bpm: CURRENT.bpm, notes: CURRENT.notes
+  }));
+  document.getElementById('share-url').value = url;
 }
-function songCard(song, kind){
-  const d = document.createElement('div'); d.className='song-card';
-  const icon = kind==='pub' ? '🌐' : (song.builtin?'⭐':'💾');
-  const badge = kind==='pub' ? '<span class="badge pub">服务器</span>' : (song.builtin?'':'<span class="badge loc">本地</span>');
-  d.innerHTML = `${badge}<div class="ic">${icon}</div><div class="nm">${song.name}</div><div class="mt">BPM ${song.bpm} · ${song.notes.length} 音符</div>`;
-  d.onclick = ()=>{ CURRENT = song; updateShare(); startGame(song); };
-  return d;
-}
-function updateShare(){
-  document.getElementById('share-url').value = CURRENT ? shareURL(CURRENT) : '';
-}
-function renderMenu(){
-  // published (server)
-  const pub = document.getElementById('pub-grid');
-  pub.innerHTML = `<div class="empty-note" style="padding:20px">加载中…</div>`;
-  api('/api/charts').then(res=>{
-    pub.innerHTML='';
-    if (!res.ok){ pub.innerHTML = `<div class="empty-note" style="padding:20px">${res.data.error||'无法连接服务器'}</div>`; return; }
-    const charts = res.data.charts || [];
-    if (charts.length===0){ pub.innerHTML = `<div class="empty-note" style="padding:20px">还没有发布的谱面，登录管理员后可发布</div>`; return; }
-    charts.forEach(c=>{
-      const song = { name:c.name, bpm:c.bpm, notes:c.notes, author:c.author, id:c.id };
-      const card = songCard(song,'pub');
-      pub.appendChild(card);
+
+// ══════════════════ MENU ═══════════════════
+function renderMenu() {
+  const localContainer = document.getElementById('local-songs');
+  localContainer.innerHTML = '';
+  
+  // Built-in
+  const builtInCard = document.createElement('div');
+  builtInCard.className = 'song-card';
+  builtInCard.innerHTML = `<div class="icon">⭐</div><div class="name">${TWINKLE.name}</div><div class="meta">BPM ${TWINKLE.bpm} · ${TWINKLE.notes.length} 音符</div>`;
+  builtInCard.onclick = () => { CURRENT = TWINKLE; updateShare(); startGame(TWINKLE); };
+  localContainer.appendChild(builtInCard);
+  
+  // Fetch published
+  api('/api/charts').then(res => {
+    const pubContainer = document.getElementById('pub-songs');
+    const noPub = document.getElementById('no-pub');
+    pubContainer.innerHTML = '';
+    if (!res.ok || !res.data.charts || res.data.charts.length === 0) {
+      noPub.style.display = 'block';
+      return;
+    }
+    noPub.style.display = 'none';
+    res.data.charts.forEach(chart => {
+      const card = document.createElement('div');
+      card.className = 'song-card';
+      card.innerHTML = `<span class="badge">服务器</span><div class="icon">🌐</div><div class="name">${chart.name}</div><div class="meta">BPM ${chart.bpm} · ${chart.notes.length} 音符</div>`;
+      card.onclick = () => { CURRENT = chart; updateShare(); startGame(chart); };
+      pubContainer.appendChild(card);
     });
   });
-  // local / builtin
-  const loc = document.getElementById('loc-grid');
-  loc.innerHTML='';
-  loc.appendChild(songCard(TWINKLE,'loc'));
-  const local = JSON.parse(localStorage.getItem('mb_local')||'[]');
-  local.forEach(s=> loc.appendChild(songCard(s,'loc')));
 }
-document.getElementById('btn-quick').onclick = ()=>{ CURRENT=TWINKLE; updateShare(); startGame(TWINKLE); };
-document.getElementById('btn-editor').onclick = ()=> showEditor(null);
-document.getElementById('btn-copy-url').onclick = ()=>{
-  if (!CURRENT){ showToast('请先选一首曲子'); return; }
-  navigator.clipboard.writeText(shareURL(CURRENT)).then(()=>showToast('链接已复制！'));
-};
-// load from hash
-(function(){
-  if (location.hash.length>1){
-    const j = decodeChart(location.hash.slice(1));
-    if (j){ try { const d=JSON.parse(j); CURRENT={name:d.n,bpm:d.b,notes:d.notes,author:d.a}; } catch{} }
-  }
-})();
 
 // ══════════════════ GAME ENGINE ═══════════════════
 const $gc = document.getElementById('game-canvas');
 const gctx = $gc.getContext('2d');
 let G = {};
-function resizeGame(){
+
+function resizeGame() {
   $gc.width = $gc.clientWidth * devicePixelRatio;
   $gc.height = $gc.clientHeight * devicePixelRatio;
-  gctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-  G.W = $gc.clientWidth; G.H = $gc.clientHeight;
+  gctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  G.W = $gc.clientWidth;
+  G.H = $gc.clientHeight;
 }
-function initGame(song){
-  // ensure dimensions are set first
+
+function initGame(song) {
   resizeGame();
   G.song = song;
   G.bpm = song.bpm;
   G.stepDur = 60 / G.bpm / 4;
   G.fallTime = 2.0;
-  G.hitY = G.H * 0.80;
-  G.noteH = Math.min(46, G.H * 0.10);
-  G.score = 0; G.combo = 0; G.maxCombo = 0; G.lives = 3;
-  G.state = 'playing';
-  G.t0 = performance.now()/1000;
-  G.lastNow = performance.now();
-  G.activePointers = {};
-  G.runtime = song.notes.map(()=>({ state:'pending', pointerId:null, done:false }));
-  G.taps = []; G.particles = []; G.floaters = [];
-  G.shake = 0; G.shown = false;
-  G.stars = Array.from({length:50},()=>({ x:Math.random()*G.W, y:Math.random()*G.H, r:Math.random()*1.6+.4, s:Math.random()*.3+.1, a:Math.random()*.5+.2 }));
-  G.theme = THEMES[THEME];
-}
-function startGame(song){
-  showView('view-game');
-  // force resize to ensure canvas has correct dimensions
-  resizeGame();
-  // wait a frame for layout
-  requestAnimationFrame(()=>{ initGame(song); requestAnimationFrame(loop); });
-}
-const spawnY = ()=> -G.noteH*1.5;
-function noteGeom(note, t){
-  const [step,pitch,dur,type]=note;
-  const startT = step*G.stepDur;
-  const speed = (G.hitY - spawnY()) / G.fallTime; // px/sec
-  const headY = spawnY() + (t - (startT - G.fallTime)) * speed;
-  const stepPx = speed * G.stepDur;
-  const tailY = headY + dur*stepPx;
-  const laneW = G.W/4;
-  const x = pitch*laneW + laneW*0.13;
-  const w = laneW*0.74;
-  return { x, w, headY, tailY, laneW, stepPx, speed };
-}
-function loop(now){
-  if (G.state!=='playing') return;
-  const t = now/1000 - G.t0;
-  const dt = Math.min(0.05, (now - G.lastNow)/1000); G.lastNow = now;
-  updateNotes(t, dt);
-  draw(t);
+  G.hitY = G.H * 0.85;
+  G.laneW = G.W / 4;
+  G.tileH = G.laneW * 0.9;
+  G.speed = (G.hitY + G.tileH) / G.fallTime;
+  
+  G.score = 0;
+  G.combo = 0;
+  G.maxCombo = 0;
+  G.lives = 3;
+  G.state = 'countdown';
+  G.countdown = 3;
+  G.t0 = null;
+  
+  G.runtime = song.notes.map(() => ({ state: 'pending', pointerId: null }));
+  G.particles = [];
+  
   updateHUD();
-  // win
-  const allDone = G.runtime.every(r=>r.state==='done'||r.state==='missed');
-  if (allDone && G.runtime.length>0){ G.state='win'; setTimeout(showResult, 700); return; }
+  document.getElementById('countdown').textContent = '3';
+}
+
+function noteY(note, t) {
+  const [step] = note;
+  const startT = step * G.stepDur;
+  return G.hitY - (startT - t) * G.speed;
+}
+
+function draw() {
+  const { W, H } = G;
+  const bg = getComputedStyle(document.body).getPropertyValue('--bg').trim();
+  const laneBg = getComputedStyle(document.body).getPropertyValue('--lane-bg').trim();
+  const laneAlt = getComputedStyle(document.body).getPropertyValue('--lane-alt').trim();
+  const tile = getComputedStyle(document.body).getPropertyValue('--tile').trim();
+  const tileHold = getComputedStyle(document.body).getPropertyValue('--tile-hold').trim();
+  const hitLine = getComputedStyle(document.body).getPropertyValue('--hit-line').trim();
+  
+  // Clear
+  gctx.fillStyle = bg;
+  gctx.fillRect(0, 0, W, H);
+  
+  if (G.state === 'countdown') {
+    // Just draw lanes during countdown
+    for (let i = 0; i < 4; i++) {
+      gctx.fillStyle = i % 2 === 0 ? laneBg : laneAlt;
+      gctx.fillRect(i * G.laneW, 0, G.laneW, H);
+    }
+    // Hit line
+    gctx.strokeStyle = hitLine;
+    gctx.lineWidth = 3;
+    gctx.beginPath();
+    gctx.moveTo(0, G.hitY);
+    gctx.lineTo(W, G.hitY);
+    gctx.stroke();
+    return;
+  }
+  
+  const t = performance.now() / 1000 - G.t0;
+  
+  // Lanes
+  for (let i = 0; i < 4; i++) {
+    gctx.fillStyle = i % 2 === 0 ? laneBg : laneAlt;
+    gctx.fillRect(i * G.laneW, 0, G.laneW, H);
+  }
+  
+  // Hit line
+  gctx.strokeStyle = hitLine;
+  gctx.lineWidth = 3;
+  gctx.beginPath();
+  gctx.moveTo(0, G.hitY);
+  gctx.lineTo(W, G.hitY);
+  gctx.stroke();
+  
+  // Notes
+  G.song.notes.forEach((note, i) => {
+    const rt = G.runtime[i];
+    if (rt.state === 'done' || rt.state === 'missed') return;
+    
+    const [step, pitch, dur, type] = note;
+    const y = noteY(note, t);
+    const h = type === 1 ? dur * G.stepDur * G.speed : G.tileH;
+    const x = pitch * G.laneW + (G.laneW - G.tileH) / 2;
+    const w = G.tileH;
+    
+    if (y + h < 0 || y > H + 50) return;
+    
+    // Draw tile
+    gctx.fillStyle = type === 1 ? tileHold : tile;
+    gctx.fillRect(x, y - h, w, h);
+    
+    // Highlight if holding
+    if (rt.state === 'holding') {
+      gctx.strokeStyle = hitLine;
+      gctx.lineWidth = 3;
+      gctx.strokeRect(x, y - h, w, h);
+    }
+  });
+  
+  // Particles
+  G.particles = G.particles.filter(p => {
+    p.life -= 0.05;
+    if (p.life <= 0) return false;
+    p.y += p.vy;
+    p.x += p.vx;
+    gctx.globalAlpha = p.life;
+    gctx.fillStyle = hitLine;
+    gctx.beginPath();
+    gctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    gctx.fill();
+    gctx.globalAlpha = 1;
+    return true;
+  });
+}
+
+function loop() {
+  if (G.state === 'playing') {
+    const t = performance.now() / 1000 - G.t0;
+    
+    // Check misses
+    G.song.notes.forEach((note, i) => {
+      const rt = G.runtime[i];
+      if (rt.state !== 'pending' && rt.state !== 'holding') return;
+      const y = noteY(note, t);
+      if (y > G.hitY + G.tileH) {
+        rt.state = 'missed';
+        G.combo = 0;
+        G.lives--;
+        updateHUD();
+        if (G.lives <= 0) {
+          G.state = 'gameover';
+          setTimeout(showResult, 500);
+        }
+      }
+    });
+    
+    // Check win
+    const allDone = G.runtime.every(r => r.state === 'done' || r.state === 'missed');
+    if (allDone && G.runtime.length > 0) {
+      G.state = 'win';
+      setTimeout(showResult, 500);
+    }
+  }
+  
+  draw();
+  if (G.state !== 'ended') requestAnimationFrame(loop);
+}
+
+function startCountdown() {
+  const cd = document.getElementById('countdown');
+  let count = 3;
+  cd.textContent = count;
+  
+  const timer = setInterval(() => {
+    count--;
+    if (count > 0) {
+      cd.textContent = count;
+    } else if (count === 0) {
+      cd.textContent = 'GO!';
+    } else {
+      clearInterval(timer);
+      cd.textContent = '';
+      G.state = 'playing';
+      G.t0 = performance.now() / 1000;
+    }
+  }, 1000);
+}
+
+function startGame(song) {
+  showView('view-game');
+  initGame(song);
+  startCountdown();
   requestAnimationFrame(loop);
 }
-function updateNotes(t, dt){
-  const hw = G.stepDur*1.5;
-  G.song.notes.forEach((note,i)=>{
-    const rt = G.runtime[i];
-    if (rt.state==='done'||rt.state==='missed') return;
-    const [step,pitch,dur,type]=note;
-    const startT = step*G.stepDur;
-    const endT = (step+dur)*G.stepDur;
-    if (rt.state==='pending'){
-      if (t > startT + hw){ rt.state='missed'; onMiss(); }
-    } else if (rt.state==='holding'){
-      if (!G.activePointers[rt.pointerId]){
-        if (t >= endT - G.stepDur*0.8){ rt.state='done'; onHoldDone(i); }
-        else { rt.state='missed'; onMiss(); }
-      } else {
-        G.score += 220 * dt; // continuous hold score
-        if (t >= endT){ rt.state='done'; onHoldDone(i); }
-      }
-    }
-  });
-}
-function onTapHit(i, diff){
-  G.combo++; G.maxCombo=Math.max(G.maxCombo,G.combo);
-  const ratio = 1 - diff/(G.stepDur*1.5);
-  let pts, label, col;
-  if (ratio>0.8){ pts=300; label='PERFECT'; col='#ffd700'; }
-  else if (ratio>0.5){ pts=160; label='GOOD'; col='#4cc9f0'; }
-  else { pts=70; label='OK'; col='#aaa'; }
-  G.score += pts * (1 + Math.floor(G.combo/10)*0.1);
-  burst(G.runtime[i]._x || G.W/2, G.hitY, col);
-  floater(label, col);
-}
-function onHoldDone(i){
-  G.combo++; G.maxCombo=Math.max(G.maxCombo,G.combo);
-  G.score += 200 * (1 + Math.floor(G.combo/10)*0.1);
-  floater('HOLD!', '#ffd700');
-}
-function onMiss(){
-  G.combo=0; G.lives--; G.shake=4;
-  floater('MISS', '#ff4d6d');
-  if (G.lives<=0){ G.state='over'; setTimeout(showResult, 500); }
-}
-function burst(x,y,col){
-  for(let i=0;i<10;i++) G.particles.push({ x, y, vx:(Math.random()-.5)*7, vy:-Math.random()*6-2, r:Math.random()*3+1, life:1, col });
-}
-function floater(text,col){
-  G.floaters.push({ text, col, life:1, y:G.hitY-50 });
-  renderFloaters();
-}
-function renderFloaters(){
-  const layer = document.getElementById('float-layer');
-  layer.innerHTML='';
-  G.floaters.forEach(f=>{
-    const el=document.createElement('div');
-    el.style.cssText=`position:absolute;left:50%;top:${f.y}px;transform:translateX(-50%);color:${f.col};font-weight:800;font-size:1.3em;opacity:${f.life};transition:none;pointer-events:none;text-shadow:0 2px 8px rgba(0,0,0,.4)`;
-    el.textContent=f.text; layer.appendChild(el);
-  });
+
+function updateHUD() {
+  document.querySelector('#hud-score .v').textContent = Math.floor(G.score);
+  document.querySelector('#hud-combo .v').textContent = G.combo;
+  document.querySelector('#hud-lives .v').textContent = '❤️'.repeat(Math.max(0, G.lives));
 }
 
-// ── input ──
-function pressAt(clientX, pid){
-  if (G.state!=='playing') return;
-  const rect = $gc.getBoundingClientRect();
-  const x = clientX - rect.left;
-  const lane = Math.floor(x / (G.W/4));
-  if (lane<0||lane>3) return;
-  G.activePointers[pid] = lane;
-  const t = performance.now()/1000 - G.t0;
-  let best=-1, bestDiff=Infinity;
-  G.song.notes.forEach((note,i)=>{
-    const rt=G.runtime[i]; if(rt.state!=='pending') return;
-    if (note[1]!==lane) return;
-    const diff=Math.abs(t - note[0]*G.stepDur);
-    if (diff < G.stepDur*1.7 && diff<bestDiff){ bestDiff=diff; best=i; }
-  });
-  if (best>=0){
-    const [step,pitch,dur,type]=G.song.notes[best];
-    G.runtime[best]._x = pitch*(G.W/4)+(G.W/4)/2;
-    if (type===1){ G.runtime[best].state='holding'; G.runtime[best].pointerId=pid; }
-    else { G.runtime[best].state='done'; onTapHit(best, bestDiff); }
-  } else {
-    G.combo=0; // empty tap penalty (no life loss)
+function spawnParticles(x, y) {
+  for (let i = 0; i < 8; i++) {
+    G.particles.push({
+      x: x + G.tileH / 2,
+      y: y,
+      vx: (Math.random() - 0.5) * 10,
+      vy: (Math.random() - 0.5) * 10 - 5,
+      r: Math.random() * 4 + 2,
+      life: 1
+    });
   }
 }
-function releaseAt(pid){
-  const lane = G.activePointers[pid];
-  delete G.activePointers[pid];
-  if (lane==null) return;
-  const t = performance.now()/1000 - G.t0;
-  G.song.notes.forEach((note,i)=>{
-    const rt=G.runtime[i];
-    if (rt.state==='holding' && rt.pointerId===pid){
-      const endT=(note[0]+note[2])*G.stepDur;
-      if (t >= endT - G.stepDur*0.8){ rt.state='done'; onHoldDone(i); }
-      else { rt.state='missed'; onMiss(); }
+
+function hitTest(clientX, clientY) {
+  const rect = $gc.getBoundingClientRect();
+  const x = (clientX - rect.left) * (G.W / rect.width);
+  const y = (clientY - rect.top) * (G.H / rect.height);
+  const t = performance.now() / 1000 - G.t0;
+  
+  // Find note in hit zone
+  let best = null, bestDist = Infinity;
+  G.song.notes.forEach((note, i) => {
+    const rt = G.runtime[i];
+    if (rt.state !== 'pending' && rt.state !== 'holding') return;
+    
+    const [step, pitch, dur, type] = note;
+    const noteY_pos = noteY(note, t);
+    const noteX = pitch * G.laneW + (G.laneW - G.tileH) / 2;
+    
+    // Check lane
+    if (x < noteX || x > noteX + G.tileH) return;
+    
+    // Check vertical distance to hit line
+    const dist = Math.abs(noteY_pos - G.hitY);
+    if (dist < bestDist && dist < G.tileH * 1.5) {
+      bestDist = dist;
+      best = i;
     }
   });
+  
+  return best !== null ? { index: best, dist: bestDist } : null;
 }
-$gc.addEventListener('pointerdown', e=>{ e.preventDefault(); pressAt(e.clientX, e.pointerId); });
-$gc.addEventListener('pointerup', e=>{ releaseAt(e.pointerId); });
-$gc.addEventListener('pointercancel', e=>{ releaseAt(e.pointerId); });
-// keyboard (desktop)
-document.addEventListener('keydown', e=>{
-  if (G.state!=='playing') return;
-  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'s':1,'d':2,'f':3};
-  if (e.key in map){ e.preventDefault(); pressAt(map[e.key]*(G.W/4)+G.W/8, 'k'+e.key); }
-});
-document.addEventListener('keyup', e=>{
-  const map={'1':0,'2':1,'3':2,'4':3,'a':0,'s':1,'d':2,'f':3};
-  if (e.key in map) releaseAt('k'+e.key);
-});
 
-// ── HUD ──
-function updateHUD(){
-  document.querySelector('#hud-score .v').textContent = Math.floor(G.score);
-  const cv = document.querySelector('#hud-combo .v');
-  cv.textContent = G.combo;
-  cv.classList.add('pop'); setTimeout(()=>cv.classList.remove('pop'),90);
-  document.querySelector('#hud-lives .v').textContent = '❤️'.repeat(Math.max(0,G.lives)) + '🖤'.repeat(Math.max(0,3-G.lives));
-}
-document.getElementById('pause-btn').onclick = ()=>{
-  if (G.state==='playing'){ G.state='paused'; G._pauseAt=performance.now()/1000; showOverlay('paused'); }
-};
-
-// ══════════════════ DRAW ═══════════════════
-function draw(t){
-  const { W,H } = G; const th = G.theme;
-  const cx = gctx;
-  cx.save();
-  const sh = G.shake>0 ? (Math.random()-.5)*G.shake*2 : 0;
-  if (sh) cx.translate(sh,0);
-  if (G.shake>0) G.shake*=0.85; if (G.shake<0.1) G.shake=0;
-  // bg
-  const g = cx.createLinearGradient(0,0,0,H); g.addColorStop(0,th.bg1); g.addColorStop(1,th.bg2);
-  cx.fillStyle=g; cx.fillRect(-10,0,W+20,H);
-  // stars
-  G.stars.forEach(s=>{ s.y+=s.s; if(s.y>H){s.y=0;s.x=Math.random()*W;} cx.globalAlpha=s.a; cx.fillStyle=th.star; cx.beginPath(); cx.arc(s.x,s.y,s.r,0,7); cx.fill(); });
-  cx.globalAlpha=1;
-  // lanes
-  const lw=W/4;
-  for(let i=0;i<4;i++){ cx.fillStyle=th.laneBg[i]; cx.fillRect(i*lw,0,lw,H); cx.fillStyle='rgba(255,255,255,0.04)'; cx.fillRect(i*lw,0,1,H); }
-  // hit zone
-  const hz=cx.createLinearGradient(0,G.hitY-G.noteH,0,G.hitY+12);
-  hz.addColorStop(0,'rgba(255,255,255,0)'); hz.addColorStop(1,th.hit);
-  cx.fillStyle=hz; cx.fillRect(0,G.hitY-G.noteH,lw*4,G.noteH+12);
-  cx.strokeStyle=th.hit; cx.lineWidth=2; cx.beginPath(); cx.moveTo(0,G.hitY); cx.lineTo(W,G.hitY); cx.stroke();
-  // notes
-  G.song.notes.forEach((note,i)=>{
-    const rt=G.runtime[i]; if(rt.state==='done'||rt.state==='missed') return;
-    const geo=noteGeom(note,t);
-    if (geo.tailY < -20 || geo.headY > H+20) return;
-    const [step,pitch,dur,type]=note;
-    const col=th.lanes[pitch];
-    const holding = rt.state==='holding';
-    if (type===1){
-      // HOLD: tall rounded bar
-      const x=geo.x, w=geo.w, top=geo.headY, bot=geo.tailY;
-      cx.shadowColor=col; cx.shadowBlur=holding?22:10;
-      const grd=cx.createLinearGradient(x,top,x,bot);
-      grd.addColorStop(0, shade(col, holding?20:0)); grd.addColorStop(1, shade(col,-30));
-      cx.fillStyle=grd;
-      roundRect(cx,x,top,w,bot-top,Math.min(14,w/2)); cx.fill();
-      cx.shadowBlur=0;
-      // gloss
-      cx.fillStyle='rgba(255,255,255,0.28)'; roundRect(cx,x+4,top+3,w*0.4,(bot-top)*0.5,6); cx.fill();
-      // head knob
-      cx.fillStyle='rgba(255,255,255,0.9)'; cx.beginPath(); cx.arc(x+w/2,top+w/2,Math.min(w/3,12),0,7); cx.fill();
-      // stripes
-      cx.strokeStyle='rgba(255,255,255,0.18)'; cx.lineWidth=2;
-      for(let yy=top+14; yy<bot-4; yy+=14){ cx.beginPath(); cx.moveTo(x+5,yy); cx.lineTo(x+w-5,yy); cx.stroke(); }
-      if (holding){ cx.strokeStyle='rgba(255,255,255,0.7)'; cx.lineWidth=3; roundRect(cx,x,top,w,bot-top,Math.min(14,w/2)); cx.stroke(); }
+function onPress(e) {
+  if (G.state !== 'playing') return;
+  e.preventDefault();
+  
+  const touches = e.changedTouches || [e];
+  for (let i = 0; i < touches.length; i++) {
+    const t = touches[i];
+    const hit = hitTest(t.clientX, t.clientY);
+    if (hit === null) continue;
+    
+    const noteIdx = hit.index;
+    const rt = G.runtime[noteIdx];
+    const note = G.song.notes[noteIdx];
+    const [step, pitch, dur, type] = note;
+    
+    rt.pointerId = t.identifier !== undefined ? t.identifier : 'mouse';
+    
+    if (type === 0) {
+      // Tap note
+      rt.state = 'done';
+      G.combo++;
+      G.maxCombo = Math.max(G.maxCombo, G.combo);
+      const points = 100 + G.combo * 10;
+      G.score += points;
+      
+      const noteY_pos = noteY(note, performance.now() / 1000 - G.t0);
+      spawnParticles(pitch * G.laneW + (G.laneW - G.tileH) / 2, noteY_pos);
     } else {
-      // TAP: glossy tile with note glyph
-      const x=geo.x, y=geo.headY, w=geo.w, h=Math.min(G.noteH, geo.stepPx*0.92);
-      cx.shadowColor=col; cx.shadowBlur=14;
-      const grd=cx.createLinearGradient(x,y-w/2,x,y+w/2);
-      grd.addColorStop(0, shade(col,18)); grd.addColorStop(1, shade(col,-25));
-      cx.fillStyle=grd; roundRect(cx,x,y-h/2,w,h,10); cx.fill();
-      cx.shadowBlur=0;
-      cx.fillStyle='rgba(255,255,255,0.32)'; roundRect(cx,x+4,y-h/2+3,w*0.45,h*0.32,5); cx.fill();
-      // glyph ♪
-      cx.fillStyle='rgba(255,255,255,0.85)'; cx.font=`${h*0.5}px serif`; cx.textAlign='center'; cx.textBaseline='middle';
-      cx.fillText('♪', x+w/2, y);
+      // Hold note - start holding
+      rt.state = 'holding';
+      rt.holdStart = performance.now() / 1000 - G.t0;
     }
-  });
-  // taps
-  G.taps=G.taps.filter(t2=>{ /* taps handled via particles */ return false; });
-  // particles
-  G.particles=G.particles.filter(p=>{ p.life-=0.025; if(p.life<=0)return false; p.x+=p.vx; p.y+=p.vy; p.vy+=0.3; cx.globalAlpha=p.life; cx.fillStyle=p.col; cx.beginPath(); cx.arc(p.x,p.y,p.r,0,7); cx.fill(); cx.globalAlpha=1; return true; });
-  // progress
-  const prog=G.runtime.filter(r=>r.state==='done'||r.state==='missed').length / Math.max(1,G.runtime.length);
-  cx.fillStyle='rgba(255,255,255,0.08)'; cx.fillRect(0,H-4,W,4); cx.fillStyle=th.lanes[0]; cx.fillRect(0,H-4,W*prog,4);
-  cx.restore();
-  // floaters decay
-  G.floaters=G.floaters.filter(f=>{ f.life-=0.03; f.y-=0.8; return f.life>0; });
-  requestAnimationFrame(()=>{ if(G.state==='playing') renderFloaters(); });
+    
+    updateHUD();
+  }
 }
-function roundRect(cx,x,y,w,h,r){ r=Math.min(r,w/2,h/2); cx.beginPath(); cx.moveTo(x+r,y); cx.lineTo(x+w-r,y); cx.quadraticCurveTo(x+w,y,x+w,y+r); cx.lineTo(x+w,y+h-r); cx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); cx.lineTo(x+r,y+h); cx.quadraticCurveTo(x,y+h,x,y+h-r); cx.lineTo(x,y+r); cx.quadraticCurveTo(x,y,x+r,y); cx.closePath(); }
-function shade(hex,amt){
-  if(hex.startsWith('rgb')) return hex;
-  const n=parseInt(hex.slice(1),16); const a=Math.round(2.55*amt);
-  const R=Math.max(0,Math.min(255,(n>>16)+a)), B=Math.max(0,Math.min(255,((n>>8)&255)+a)), Gc=Math.max(0,Math.min(255,(n&255)+a));
-  return `rgb(${R},${B},${Gc})`;
+
+function onRelease(e) {
+  if (G.state !== 'playing') return;
+  
+  const touches = e.changedTouches || [e];
+  for (let i = 0; i < touches.length; i++) {
+    const t = touches[i];
+    const pid = t.identifier !== undefined ? t.identifier : 'mouse';
+    
+    G.runtime.forEach((rt, idx) => {
+      if (rt.pointerId !== pid) return;
+      if (rt.state !== 'holding') return;
+      
+      const note = G.song.notes[idx];
+      const [step, pitch, dur, type] = note;
+      const holdDuration = (performance.now() / 1000 - G.t0) - rt.holdStart;
+      const requiredDuration = dur * G.stepDur;
+      
+      if (holdDuration >= requiredDuration * 0.8) {
+        rt.state = 'done';
+        G.combo++;
+        G.maxCombo = Math.max(G.maxCombo, G.combo);
+        G.score += 200 + G.combo * 20;
+      } else {
+        rt.state = 'missed';
+        G.combo = 0;
+        G.lives--;
+      }
+      rt.pointerId = null;
+    });
+    
+    updateHUD();
+    if (G.lives <= 0) {
+      G.state = 'gameover';
+      setTimeout(showResult, 500);
+    }
+  }
 }
+
+$gc.addEventListener('mousedown', onPress);
+$gc.addEventListener('mouseup', onRelease);
+$gc.addEventListener('touchstart', onPress, { passive: false });
+$gc.addEventListener('touchend', onRelease);
+$gc.addEventListener('touchcancel', onRelease);
 
 // ══════════════════ RESULT ═══════════════════
-function showResult(){
-  if (G.shown) return; G.shown=true;
-  const total=G.runtime.length;
-  const hits=G.runtime.filter(r=>r.state==='done').length;
-  const acc=total? hits/total : 0;
-  const grade = acc>=0.95?['S','g-S']:acc>=0.8?['A','g-A']:acc>=0.6?['B','g-B']:['C','g-C'];
-  document.getElementById('ov-title').textContent = G.state==='win'?'🎉 完美通关！':'💔 游戏结束';
-  document.getElementById('ov-sub').textContent = G.song.name + (G.song.author?` · by ${G.song.author}`:'');
+function showResult() {
+  const total = G.runtime.length;
+  const hits = G.runtime.filter(r => r.state === 'done').length;
+  const acc = total ? hits / total : 0;
+  const grade = acc >= 0.95 ? 'S' : acc >= 0.8 ? 'A' : acc >= 0.6 ? 'B' : 'C';
+  
+  document.getElementById('ov-title').textContent = G.state === 'win' ? '🎉 完美！' : '💔 结束';
+  document.getElementById('ov-sub').textContent = G.song.name;
   document.getElementById('ov-stats').innerHTML = `
     <div class="stat"><div class="sl">Score</div><div class="sv">${Math.floor(G.score)}</div></div>
-    <div class="stat"><div class="sl">Grade</div><div class="sv ${grade[1]}">${grade[0]}</div></div>
+    <div class="stat"><div class="sl">Grade</div><div class="sv">${grade}</div></div>
     <div class="stat"><div class="sl">Max Combo</div><div class="sv">${G.maxCombo}</div></div>
-    <div class="stat"><div class="sl">Accuracy</div><div class="sv">${(acc*100).toFixed(1)}%</div></div>`;
-  const acts=document.getElementById('ov-actions'); acts.innerHTML='';
-  const retry=document.createElement('button'); retry.className='btn btn-primary'; retry.textContent='🔄 重玩';
-  retry.onclick=()=>{ hideOverlay(); startGame(G.song); };
-  const menu=document.createElement('button'); menu.className='btn btn-ghost'; menu.textContent='🏠 主页';
-  menu.onclick=()=>{ hideOverlay(); showView('view-menu'); renderMenu(); };
-  acts.appendChild(retry); acts.appendChild(menu);
+    <div class="stat"><div class="sl">Accuracy</div><div class="sv">${(acc * 100).toFixed(0)}%</div></div>
+  `;
   document.getElementById('overlay').classList.add('show');
-  // record play (server chart)
-  if (G.song.id) api(`/api/charts/${G.song.id}/play`,{method:'POST'});
 }
-function showOverlay(type){
-  const ov=document.getElementById('overlay');
-  if (type==='paused'){
-    document.getElementById('ov-title').textContent='⏸ 暂停';
-    document.getElementById('ov-sub').textContent=G.song.name;
-    document.getElementById('ov-stats').innerHTML=`<div class="stat"><div class="sl">Score</div><div class="sv">${Math.floor(G.score)}</div></div><div class="stat"><div class="sl">Combo</div><div class="sv">${G.maxCombo}</div></div>`;
-    const acts=document.getElementById('ov-actions'); acts.innerHTML='';
-    const r=document.createElement('button'); r.className='btn btn-primary'; r.textContent='▶ 继续';
-    r.onclick=()=>{ hideOverlay(); G.state='playing'; G.t0 += performance.now()/1000 - G._pauseAt; G.lastNow=performance.now(); requestAnimationFrame(loop); };
-    const m=document.createElement('button'); m.className='btn btn-ghost'; m.textContent='🏠 主页';
-    m.onclick=()=>{ hideOverlay(); showView('view-menu'); renderMenu(); };
-    acts.appendChild(r); acts.appendChild(m);
-    ov.classList.add('show');
+
+document.getElementById('ov-retry').onclick = () => {
+  document.getElementById('overlay').classList.remove('show');
+  startGame(CURRENT || TWINKLE);
+};
+document.getElementById('ov-menu').onclick = () => {
+  document.getElementById('overlay').classList.remove('show');
+  showView('view-menu');
+  renderMenu();
+};
+document.getElementById('pause-btn').onclick = () => {
+  if (G.state === 'playing') {
+    G.state = 'paused';
+    showOverlay('paused');
   }
-}
-function hideOverlay(){ document.getElementById('overlay').classList.remove('show'); }
+};
 
 // ══════════════════ EDITOR ═══════════════════
-let ED = { notes:[], name:'', bpm:90, type:0, dur:1, sel:-1, rowH:34, playing:false };
-function showEditor(song){
+let ED = { notes: [], bpm: 120, name: '未命名' };
+const $roll = document.getElementById('roll-canvas');
+const rctx = $roll.getContext('2d');
+
+function resizeEditor() {
+  const wrap = document.querySelector('.ed-roll-wrap');
+  $roll.width = wrap.clientWidth * devicePixelRatio;
+  $roll.height = Math.max(wrap.clientHeight, 800) * devicePixelRatio;
+  rctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+}
+
+function drawEditor() {
+  const W = $roll.width / devicePixelRatio;
+  const H = $roll.height / devicePixelRatio;
+  const laneW = W / 4;
+  const stepH = 40;
+  
+  rctx.fillStyle = '#0d0d0d';
+  rctx.fillRect(0, 0, W, H);
+  
+  // Grid
+  for (let i = 0; i < 4; i++) {
+    rctx.fillStyle = i % 2 === 0 ? '#1a1a1a' : '#141414';
+    rctx.fillRect(i * laneW, 0, laneW, H);
+    rctx.strokeStyle = '#333';
+    rctx.beginPath();
+    rctx.moveTo(i * laneW, 0);
+    rctx.lineTo(i * laneW, H);
+    rctx.stroke();
+  }
+  
+  // Steps
+  for (let s = 0; s < 100; s++) {
+    rctx.strokeStyle = s % 4 === 0 ? '#444' : '#222';
+    rctx.beginPath();
+    rctx.moveTo(0, s * stepH);
+    rctx.lineTo(W, s * stepH);
+    rctx.stroke();
+  }
+  
+  // Notes
+  ED.notes.forEach(([step, pitch, dur, type]) => {
+    const x = pitch * laneW + 4;
+    const y = step * stepH + 4;
+    const w = laneW - 8;
+    const h = type === 1 ? dur * stepH - 8 : stepH - 8;
+    rctx.fillStyle = type === 1 ? '#333' : '#000';
+    rctx.fillRect(x, y, w, h);
+  });
+}
+
+$roll.addEventListener('click', e => {
+  const rect = $roll.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * ($roll.width / rect.width / devicePixelRatio);
+  const y = (e.clientY - rect.top) * ($roll.height / rect.height / devicePixelRatio);
+  const laneW = ($roll.width / devicePixelRatio) / 4;
+  const stepH = 40;
+  
+  const pitch = Math.floor(x / laneW);
+  const step = Math.floor(y / stepH);
+  
+  const existing = ED.notes.findIndex(n => n[0] === step && n[1] === pitch);
+  if (existing >= 0) {
+    ED.notes.splice(existing, 1);
+  } else {
+    const type = document.getElementById('tool-hold').classList.contains('on') ? 1 : 0;
+    ED.notes.push([step, pitch, type === 1 ? 2 : 1, type]);
+    ED.notes.sort((a, b) => a[0] - b[0]);
+  }
+  drawEditor();
+});
+
+document.getElementById('tool-tap').onclick = () => {
+  document.getElementById('tool-tap').classList.add('on');
+  document.getElementById('tool-hold').classList.remove('on');
+};
+document.getElementById('tool-hold').onclick = () => {
+  document.getElementById('tool-hold').classList.add('on');
+  document.getElementById('tool-tap').classList.remove('on');
+};
+document.getElementById('ed-test').onclick = () => {
+  const song = {
+    name: document.getElementById('ed-name').value || '未命名',
+    bpm: parseInt(document.getElementById('ed-bpm').value) || 120,
+    notes: ED.notes.slice()
+  };
+  CURRENT = song;
+  startGame(song);
+};
+document.getElementById('ed-back').onclick = () => {
+  showView('view-menu');
+  renderMenu();
+};
+
+function showEditor(song) {
   showView('view-editor');
-  if (song){ ED.name=song.name; ED.bpm=song.bpm; ED.notes=song.notes.map(n=>n.slice()); }
-  else { ED.name=''; ED.bpm=90; ED.notes=[]; }
-  document.getElementById('ed-name').value=ED.name;
-  document.getElementById('ed-bpm').value=ED.bpm;
-  // publish button only for admin
-  document.getElementById('ed-publish').style.display = (USER&&USER.isAdmin)?'inline-block':'none';
-  ED.type=0; ED.dur=1; ED.sel=-1;
-  document.querySelectorAll('#ed-type button').forEach(b=>b.classList.toggle('on', +b.dataset.type===0));
-  document.getElementById('ed-dur-val').textContent='1';
-  updateEdInfo(); resizeEditor(); drawRoll(); drawPreview();
-  setupEditor();
-}
-function updateEdInfo(){ document.getElementById('ed-info').textContent = `${ED.notes.length} 音符 · ${ED.notes.length?Math.max(...ED.notes.map(n=>n[0]+n[2]))+1:0} 步`; }
-function resizeEditor(){
-  const wrap=document.getElementById('roll-wrap'); const rc=document.getElementById('roll-canvas');
-  const w=wrap.clientWidth, h=wrap.clientHeight||400;
-  rc.width=w*devicePixelRatio; rc.height=h*devicePixelRatio; rc.style.width=w+'px'; rc.style.height=h+'px';
-  const pc=document.getElementById('preview-canvas'); const pw=pc.clientWidth, ph=pc.clientHeight||100;
-  pc.width=pw*devicePixelRatio; pc.height=ph*devicePixelRatio; pc.style.width=pw+'px'; pc.style.height=ph+'px';
-}
-function drawRoll(){
-  const rc=document.getElementById('roll-canvas'); const cx=rc.getContext('2d'); cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-  const w=rc.clientWidth, h=rc.clientHeight; const th=THEMES[THEME];
-  cx.clearRect(0,0,w,h);
-  cx.fillStyle='#080818'; cx.fillRect(0,0,w,h);
-  const laneW=w/4, rowH=ED.rowH, headH=26;
-  const maxStep=Math.max(64, ED.notes.length?Math.max(...ED.notes.map(n=>n[0]+n[2]))+8:64);
-  // lane headers
-  for(let i=0;i<4;i++){ cx.fillStyle=th.laneBg[i]; cx.fillRect(i*laneW,0,laneW,headH); cx.fillStyle=th.lanes[i]; cx.font='600 11px sans-serif'; cx.textAlign='center'; cx.fillText('Lane '+(i+1), i*laneW+laneW/2, 17); }
-  // grid
-  for(let s=0;s<=maxStep;s++){ const y=headH+s*rowH; if(y>h)break; cx.strokeStyle = s%4===0?'rgba(255,255,255,0.12)':'rgba(255,255,255,0.04)'; cx.beginPath(); cx.moveTo(0,y); cx.lineTo(w,y); cx.stroke(); }
-  for(let i=0;i<4;i++){ cx.strokeStyle='rgba(255,255,255,0.1)'; cx.beginPath(); cx.moveTo(i*laneW,0); cx.lineTo(i*laneW,h); cx.stroke(); }
-  // notes
-  ED.notes.forEach((n,i)=>{
-    const [step,pitch,dur,type]=n; const x=pitch*laneW+4; const y=headH+step*rowH+2;
-    const ww=laneW-8; const hh=Math.max((type===1?dur:1)*rowH-4, 10);
-    const sel=i===ED.sel;
-    cx.shadowColor=th.lanes[pitch]; cx.shadowBlur=sel?12:4; cx.fillStyle=sel?'#ffd700':th.lanes[pitch];
-    roundRect(cx,x,y,ww,hh,5); cx.fill(); cx.shadowBlur=0;
-    if(type===1){ cx.strokeStyle='rgba(255,255,255,0.4)'; cx.lineWidth=2; for(let yy=y+8;yy<y+hh-4;yy+=10){ cx.beginPath(); cx.moveTo(x+4,yy); cx.lineTo(x+ww-4,yy); cx.stroke(); } }
-    else { cx.fillStyle='rgba(255,255,255,0.85)'; cx.font=`${Math.min(16,hh*0.6)}px serif`; cx.textAlign='center'; cx.textBaseline='middle'; cx.fillText('♪', x+ww/2, y+hh/2); }
-    if(sel){ cx.strokeStyle='#ffd700'; cx.lineWidth=2; roundRect(cx,x,y,ww,hh,5); cx.stroke(); }
-  });
-}
-function drawPreview(){
-  const pc=document.getElementById('preview-canvas'); const cx=pc.getContext('2d'); cx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
-  const w=pc.clientWidth, h=pc.clientHeight; const th=THEMES[THEME];
-  cx.clearRect(0,0,w,h); cx.fillStyle='#06060f'; cx.fillRect(0,0,w,h);
-  const laneW=w/4; const maxStep=Math.max(64, ED.notes.length?Math.max(...ED.notes.map(n=>n[0]+n[2]))+8:64);
-  ED.notes.forEach(n=>{ const [step,pitch,dur,type]=n; const x=pitch*laneW+2; const y=(step/maxStep)*h; const hh=Math.max((dur/maxStep)*h,2);
-    cx.fillStyle=th.lanes[pitch]; cx.globalAlpha=.7; cx.fillRect(x,y,laneW-4,hh); cx.globalAlpha=1; });
-  cx.strokeStyle='rgba(255,255,255,0.1)'; cx.strokeRect(0,0,w,h);
-}
-function setupEditor(){
-  const rc=document.getElementById('roll-canvas'); const wrap=document.getElementById('roll-wrap');
-  rc.onpointerdown = e=>{
-    const r=rc.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top;
-    const laneW=rc.clientWidth/4, headH=26, rowH=ED.rowH;
-    const pitch=Math.floor(x/laneW); const step=Math.floor((y-headH)/rowH);
-    if(pitch<0||pitch>3||step<0||y<headH) return;
-    const hit=ED.notes.findIndex(n=>n[0]===step&&n[1]===pitch);
-    if(hit>=0){ ED.sel=hit; if(ED.type===1){ ED.notes[hit][2]=ED.dur; ED.notes[hit][3]=1; } }
-    else { ED.notes.push([step,pitch,ED.type===1?ED.dur:1,ED.type]); ED.notes.sort((a,b)=>a[0]-b[0]); ED.sel=ED.notes.findIndex(n=>n[0]===step&&n[1]===pitch); }
-    updateEdInfo(); drawRoll(); drawPreview();
-  };
-  document.querySelectorAll('#ed-type button').forEach(b=> b.onclick=()=>{
-    ED.type=+b.dataset.type; document.querySelectorAll('#ed-type button').forEach(x=>x.classList.toggle('on', x===b));
-    if(ED.sel>=0){ ED.notes[ED.sel][3]=ED.type; if(ED.type===1&&ED.notes[ED.sel][2]<2) ED.notes[ED.sel][2]=ED.dur; drawRoll(); }
-  });
-  document.getElementById('ed-dur-plus').onclick=()=>{ ED.dur=Math.min(16,ED.dur+1); document.getElementById('ed-dur-val').textContent=ED.dur; if(ED.sel>=0&&ED.notes[ED.sel][3]===1){ ED.notes[ED.sel][2]=ED.dur; drawRoll(); drawPreview(); } };
-  document.getElementById('ed-dur-minus').onclick=()=>{ ED.dur=Math.max(1,ED.dur-1); document.getElementById('ed-dur-val').textContent=ED.dur; if(ED.sel>=0&&ED.notes[ED.sel][3]===1){ ED.notes[ED.sel][2]=ED.dur; drawRoll(); drawPreview(); } };
-  document.getElementById('ed-del').onclick=()=>{ if(ED.sel>=0){ ED.notes.splice(ED.sel,1); ED.sel=-1; updateEdInfo(); drawRoll(); drawPreview(); } };
-  document.getElementById('ed-bpm').onchange=()=>{ ED.bpm=parseInt(document.getElementById('ed-bpm').value)||90; };
-  document.getElementById('ed-name').oninput=e=>{ ED.name=e.target.value; };
-  document.getElementById('ed-save').onclick=()=>{
-    ED.name=document.getElementById('ed-name').value||'未命名'; ED.bpm=parseInt(document.getElementById('ed-bpm').value)||90;
-    const local=JSON.parse(localStorage.getItem('mb_local')||'[]'); const idx=local.findIndex(s=>s.name===ED.name);
-    const song={name:ED.name,bpm:ED.bpm,notes:ED.notes.map(n=>n.slice())};
-    if(idx>=0) local[idx]=song; else local.push(song);
-    localStorage.setItem('mb_local',JSON.stringify(local)); showToast('已保存到本地');
-  };
-  document.getElementById('ed-play').onclick=()=>{
-    ED.name=document.getElementById('ed-name').value||'预览'; ED.bpm=parseInt(document.getElementById('ed-bpm').value)||90;
-    if(ED.notes.length===0){ showToast('请先添加音符'); return; }
-    CURRENT={name:ED.name,bpm:ED.bpm,notes:ED.notes.map(n=>n.slice())}; startGame(CURRENT);
-  };
-  document.getElementById('ed-share').onclick=()=>{
-    ED.name=document.getElementById('ed-name').value||'谱面'; ED.bpm=parseInt(document.getElementById('ed-bpm').value)||90;
-    const url=shareURL({name:ED.name,bpm:ED.bpm,notes:ED.notes}); navigator.clipboard.writeText(url).then(()=>showToast('分享链接已复制！'));
-  };
-  document.getElementById('ed-publish').onclick=async ()=>{
-    ED.name=document.getElementById('ed-name').value.trim(); ED.bpm=parseInt(document.getElementById('ed-bpm').value)||90;
-    if(!ED.name){ showToast('请填写曲名'); return; }
-    if(ED.notes.length===0){ showToast('谱面为空'); return; }
-    const res=await api('/api/charts',{method:'POST',body:{name:ED.name,bpm:ED.bpm,notes:ED.notes}});
-    if(res.ok) showToast('🚀 已发布到服务器！所有人可玩'); else showToast(res.data.error||'发布失败');
-  };
-  document.getElementById('ed-back').onclick=()=>{ showView('view-menu'); renderMenu(); };
-  window.addEventListener('resize', ()=>{ if(document.getElementById('view-editor').classList.contains('active')){ resizeEditor(); drawRoll(); drawPreview(); } });
+  resizeEditor();
+  if (song) {
+    ED = { notes: song.notes.slice(), bpm: song.bpm, name: song.name };
+    document.getElementById('ed-name').value = song.name;
+    document.getElementById('ed-bpm').value = song.bpm;
+  } else {
+    ED = { notes: [], bpm: 120, name: '未命名' };
+    document.getElementById('ed-name').value = '未命名';
+    document.getElementById('ed-bpm').value = 120;
+  }
+  drawEditor();
 }
 
-// ══════════════════ TOAST ═══════════════════
-let toastT;
-function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
+// ══════════════════ AUTH ═══════════════════
+function renderAcct() {
+  const btn = document.getElementById('acct-btn');
+  const menu = document.getElementById('acct-menu');
+  if (USER) {
+    btn.textContent = '👤 ' + USER.username;
+    menu.innerHTML = `<button id="btn-logout">退出 (${USER.username})</button>`;
+    document.getElementById('btn-logout').onclick = () => {
+      TOKEN = '';
+      USER = null;
+      localStorage.removeItem('wy_token');
+      renderAcct();
+      showToast('已退出');
+    };
+  } else {
+    btn.textContent = '👤 游客';
+    menu.innerHTML = '<button id="btn-login">登录</button><button id="btn-reg">注册</button>';
+    document.getElementById('btn-login').onclick = () => showLogin();
+    document.getElementById('btn-reg').onclick = () => showLogin(true);
+  }
+}
 
-// ══════════════════ INIT ══════════════════
-async function init(){
-  // restore session
-  if (TOKEN){ const res=await api('/api/me'); if(res.ok){ USER=res.data.user; } else { TOKEN=''; localStorage.removeItem('mb_token'); } }
+function showLogin(isReg = false) {
+  document.getElementById('modal-overlay').classList.add('show');
+  document.querySelector('#login-modal h3').textContent = isReg ? '注册' : '登录';
+  document.getElementById('login-ok').textContent = isReg ? '注册' : '登录';
+  
+  const doAuth = async () => {
+    const user = document.getElementById('login-user').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    if (!user || !pass) { showToast('请输入用户名和密码'); return; }
+    
+    const endpoint = isReg ? '/api/register' : '/api/login';
+    const res = await api(endpoint, { method: 'POST', body: { username: user, password: pass } });
+    if (res.ok) {
+      TOKEN = res.data.token;
+      USER = res.data.user;
+      localStorage.setItem('wy_token', TOKEN);
+      document.getElementById('modal-overlay').classList.remove('show');
+      renderAcct();
+      showToast(isReg ? '注册成功' : '登录成功');
+    } else {
+      showToast(res.data.error || '失败');
+    }
+  };
+  
+  document.getElementById('login-ok').onclick = doAuth;
+  document.getElementById('login-cancel').onclick = () => {
+    document.getElementById('modal-overlay').classList.remove('show');
+  };
+}
+
+document.getElementById('acct-btn').onclick = () => {
+  document.getElementById('acct-menu').classList.toggle('show');
+};
+
+// ══════════════════ INIT ═══════════════════
+async function init() {
+  setTheme(THEME);
+  
+  // Theme toggle
+  document.querySelectorAll('#theme-toggle button').forEach(b => {
+    b.onclick = () => setTheme(b.dataset.theme);
+    b.classList.toggle('active', b.dataset.theme === THEME);
+  });
+  
+  // Quick start
+  document.getElementById('btn-quick').onclick = () => {
+    CURRENT = TWINKLE;
+    updateShare();
+    startGame(TWINKLE);
+  };
+  
+  // Editor
+  document.getElementById('btn-editor').onclick = () => showEditor(null);
+  
+  // Copy share
+  document.getElementById('btn-copy').onclick = () => {
+    const url = document.getElementById('share-url').value;
+    if (url) {
+      navigator.clipboard.writeText(url);
+      showToast('链接已复制');
+    }
+  };
+  
+  // Check URL for shared song
+  if (location.hash) {
+    try {
+      const shared = JSON.parse(atob(location.hash.slice(1)));
+      CURRENT = shared;
+      updateShare();
+    } catch {}
+  }
+  
+  // Restore session
+  if (TOKEN) {
+    const res = await api('/api/me');
+    if (res.ok) USER = res.data.user;
+    else { TOKEN = ''; localStorage.removeItem('wy_token'); }
+  }
   renderAcct();
-  showView('view-menu'); renderMenu();
+  renderMenu();
 }
-// refresh published list periodically when on menu
-setInterval(()=>{ if(document.getElementById('view-menu').classList.contains('active')) renderMenu(); }, 15000);
-window.addEventListener('resize', ()=>{ if(document.getElementById('view-game').classList.contains('active')) resizeGame(); });
+
 init();
 </script>
 </body>
