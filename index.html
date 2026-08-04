@@ -56,20 +56,7 @@ body {
   transition:background .3s,color .3s;
 }
 button { font-family:inherit; cursor:pointer; }
-/* ── rotate warning (portrait phones) ── */
-#rotate {
-  display:none;
-  position:fixed; inset:0; z-index:9999;
-  background:linear-gradient(160deg,var(--bg1),var(--bg2));
-  flex-direction:column; align-items:center; justify-content:center; gap:18px;
-  text-align:center; padding:30px;
-}
-#rotate .ico { font-size:64px; animation:wob 1.4s ease-in-out infinite; }
-@keyframes wob { 0%,100%{transform:rotate(-12deg)} 50%{transform:rotate(78deg)} }
-#rotate p { color:var(--muted); max-width:280px; line-height:1.6; }
-@media (orientation:portrait){ #rotate{display:flex} #app{display:none!important} }
-/* JS override: hide rotate prompt when window is actually landscape (iOS sometimes reports wrong orientation) */
-#rotate.js-hidden { display:none !important; }
+/* rotate prompt removed: game forces landscape via CSS */
 
 /* ── top bar ── */
 #topbar {
@@ -215,9 +202,7 @@ button { font-family:inherit; cursor:pointer; }
 </head>
 <body>
 
-<!-- rotate -->
-<div id="rotate"><div class="ico">📱</div><p>请把手机横过来游玩<br>wander-yng 为横屏设计</p></div>
-
+<!-- rotate prompt removed: game is landscape-first -->
 <!-- account dropdown -->
 <div id="acct-menu"></div>
 
@@ -984,17 +969,6 @@ function setupEditor(){
 // ══════════════════ TOAST ═══════════════════
 let toastT;
 function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
-
-// ══════════════════ ROTATE DETECTION (iOS-friendly) ═══════════════════
-function checkOrientation() {
-  const rotate = document.getElementById('rotate');
-  const isLandscape = window.innerWidth > window.innerHeight;
-  if (isLandscape) rotate.classList.add('js-hidden');
-  else rotate.classList.remove('js-hidden');
-}
-window.addEventListener('resize', checkOrientation);
-window.addEventListener('orientationchange', ()=>setTimeout(checkOrientation, 100));
-checkOrientation();
 
 // ══════════════════ INIT ══════════════════
 async function init(){
